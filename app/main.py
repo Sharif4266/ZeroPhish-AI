@@ -10,34 +10,7 @@ os.chdir(root_path)
 if str(root_path) not in sys.path:
     sys.path.insert(0, str(root_path))
 
-# ─── Python Version Guard ───────────────────────────────────────────────────────
-# ZeroPhish AI requires Python 3.12. Python 3.14 (pre-release) has known
-# asyncio/uvicorn incompatibilities and must NOT be used.
-#
-# Strategy:
-#   1. If the .venv exists and we are NOT inside it, silently re-launch with
-#      the .venv Python 3.12 interpreter (handles `python app/main.py` case).
-#   2. After re-launch, perform a hard version check to catch any edge case.
-
-_venv_python = root_path / ".venv" / "Scripts" / "python.exe"
-
-# Step 1 — Auto-redirect to venv if running under system Python
-if _venv_python.exists():
-    _running_venv = str(root_path / ".venv").lower() in sys.executable.lower()
-    if not _running_venv:
-        py_ver = sys.executable.replace("\\", "/").split("/")[-2]
-        print(f"[ZeroPhish] System Python ({py_ver}) detected. Switching to .venv Python 3.12...")
-        import subprocess
-        result = subprocess.run([str(_venv_python)] + sys.argv, cwd=str(root_path))
-        sys.exit(result.returncode)
-
-# Step 2 — Hard version check (runs only when inside the venv or if .venv missing)
-_major, _minor = sys.version_info.major, sys.version_info.minor
-if not (_major == 3 and _minor == 12):
-    print(f"[ZeroPhish] ERROR: This app requires Python 3.12.")
-    print(f"[ZeroPhish] Currently running: Python {_major}.{_minor} ({sys.executable})")
-    print(f"[ZeroPhish] Please activate the virtual environment: .venv\\Scripts\\activate")
-    sys.exit(1)
+# ─── App Initialization ────────────────────────────────────────────────────────
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
