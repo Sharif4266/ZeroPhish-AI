@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeroPhish AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 16px 20px;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo svg { width: 20px; height: 20px; }
+    .brand-name { font-size: 0.95rem; font-weight: 700; color: #f1f5f9; }
+    .brand-sub  { font-size: 0.65rem; color: #64748b; margin-top: 1px; }
+
+    /* ── Token Status ── */
+    .auth-banner {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin: 16px 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+    }
+    .auth-banner.logged-in { border-color: #10b981; background: rgba(16,185,129,0.08); }
+    .auth-banner.logged-out { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+    .auth-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .auth-dot.green { background: #10b981; }
+    .auth-dot.yellow { background: #f59e0b; }
+    .auth-text { flex: 1; color: #94a3b8; }
+    .auth-text strong { color: #e2e8f0; }
+    .btn-login-link {
+      font-size: 0.72rem; color: #3b82f6; text-decoration: none;
+      font-weight: 600; white-space: nowrap;
+    }
+
+    /* ── Scan Input ── */
+    .scan-section { padding: 16px; }
+    .scan-label { font-size: 0.72rem; color: #64748b; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .url-input-wrap { position: relative; }
+    .url-input {
+      width: 100%; padding: 10px 38px 10px 12px;
+      background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      color: #e2e8f0; font-size: 0.82rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    .url-input:focus { border-color: #3b82f6; }
+    .url-input::placeholder { color: #475569; }
+    .btn-clear-url {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: #475569; cursor: pointer;
+      font-size: 0.9rem; padding: 2px; display: none;
+    }
+    .btn-clear-url.visible { display: block; }
+
+    .btn-scan {
+      width: 100%; margin-top: 10px; padding: 11px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border: none; border-radius: 8px; color: white;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-scan:hover { opacity: 0.92; }
+    .btn-scan:active { transform: scale(0.98); }
+    .btn-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .quick-btns { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-quick {
+      flex: 1; padding: 7px; background: #1e293b; border: 1px solid #334155;
+      border-radius: 6px; color: #94a3b8; font-size: 0.72rem; cursor: pointer;
+      transition: all 0.15s; text-align: center;
+    }
+    .btn-quick:hover { border-color: #3b82f6; color: #3b82f6; }
+
+    /* ── Result Card ── */
+    .result-card {
+      margin: 0 16px 16px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      overflow: hidden;
+      display: none;
+    }
+    .result-card.visible { display: block; }
+
+    .result-header {
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .result-header.safe    { background: rgba(16,185,129,0.12); }
+    .result-header.low     { background: rgba(234,179,8,0.10); }
+    .result-header.medium  { background: rgba(249,115,22,0.12); }
+    .result-header.high    { background: rgba(239,68,68,0.12); }
+
+    .risk-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .risk-icon.safe   { background: rgba(16,185,129,0.2); color: #10b981; }
+    .risk-icon.low    { background: rgba(234,179,8,0.2); color: #eab308; }
+    .risk-icon.medium { background: rgba(249,115,22,0.2); color: #f97316; }
+    .risk-icon.high   { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+    .result-label { font-size: 0.7rem; color: #94a3b8; margin-bottom: 2px; }
+    .result-verdict { font-size: 1rem; font-weight: 700; }
+    .verdict-safe   { color: #10b981; }
+    .verdict-low    { color: #eab308; }
+    .verdict-medium { color: #f97316; }
+    .verdict-high   { color: #ef4444; }
+
+    .score-bar-wrap { margin: 12px 16px 0; }
+    .score-bar-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.7rem; color: #64748b; }
+    .score-bar-bg { height: 6px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .fill-safe   { background: linear-gradient(90deg, #10b981, #34d399); }
+    .fill-low    { background: linear-gradient(90deg, #eab308, #fbbf24); }
+    .fill-medium { background: linear-gradient(90deg, #f97316, #fb923c); }
+    .fill-high   { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .result-details { padding: 12px 16px 14px; border-top: 1px solid #1e293b; }
+    .detail-title { font-size: 0.7rem; color: #64748b; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .detail-text { font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+
+    .flag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .flag-pill {
+      padding: 3px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 500;
+      background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    /* ── Loading ── */
+    .loading-wrap {
+      display: none; flex-direction: column; align-items: center;
+      padding: 24px 16px; gap: 12px;
+    }
+    .loading-wrap.visible { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #1e293b;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.8rem; color: #64748b; }
+    .loading-sub { font-size: 0.7rem; color: #475569; }
+
+    /* ── Error ── */
+    .error-box {
+      display: none; margin: 0 16px 16px;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 0.78rem; color: #f87171;
+    }
+    .error-box.visible { display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 10px 16px;
+      border-top: 1px solid #1e293b;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-link { font-size: 0.7rem; color: #3b82f6; text-decoration: none; }
+    .footer-version { font-size: 0.68rem; color: #334155; }
+
+    .divider { height: 1px; background: #1e293b; margin: 0 16px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      <path d="m9 12 2 2 4-4"/>
+    </svg>
+  </div>
+  <div>
+    <div class="brand-name">ZeroPhish AI</div>
+    <div class="brand-sub">Neural Threat Analysis</div>
+  </div>
+</div>
+
+<!-- Auth Banner -->
+<div class="auth-banner logged-out" id="auth-banner">
+  <div class="auth-dot yellow" id="auth-dot"></div>
+  <div class="auth-text" id="auth-text">Not logged in — <strong>scans won't be saved</strong></div>
+  <a href="https://zerophish-ai-uxyb.onrender.com/login" target="_blank" class="btn-login-link" id="auth-action">Login</a>
+</div>
+
+<!-- Scan Section -->
+<div class="scan-section">
+  <div class="scan-label">🔍 URL to Scan</div>
+  <div class="url-input-wrap">
+    <input type="text" class="url-input" id="url-input" placeholder="https://example.com or paste any link...">
+    <button class="btn-clear-url" id="btn-clear">✕</button>
+  </div>
+
+  <button class="btn-scan" id="btn-scan">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    Scan for Threats
+  </button>
+
+  <div class="quick-btns">
+    <button class="btn-quick" id="btn-current-tab">📌 Scan Current Page</button>
+    <button class="btn-quick" id="btn-clear-result">🗑 Clear Result</button>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Loading -->
+<div class="loading-wrap" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Analyzing with Neural AI...</div>
+  <div class="loading-sub">Checking 50+ threat databases</div>
+</div>
+
+<!-- Error -->
+<div class="error-box" id="error-box"></div>
+
+<!-- Result Card -->
+<div style="height: 12px;"></div>
+<div class="result-card" id="result-card">
+  <div class="result-header" id="result-header">
+    <div class="risk-icon" id="risk-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="risk-icon-svg">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="result-label">Risk Assessment</div>
+      <div class="result-verdict" id="result-verdict">Safe</div>
+    </div>
+  </div>
+
+  <div class="score-bar-wrap">
+    <div class="score-bar-label">
+      <span>Threat Score</span>
+      <span id="score-pct">0%</span>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" id="score-bar" style="width: 0%;"></div>
+    </div>
+  </div>
+
+  <div class="result-details">
+    <div class="detail-title">AI Analysis</div>
+    <div class="detail-text" id="result-details">No issues detected.</div>
+    <div class="flag-list" id="flag-list"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <a href="https://zerophish-ai-uxyb.onrender.com/dashboard" target="_blank" class="footer-link">Open Dashboard →</a>
+  <span class="footer-version">v1.0.0</span>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
