@@ -415,8 +415,7 @@ async function loadDashboard() {
         });
         
         if (res.status === 401) {
-            localStorage.removeItem('zp_token');
-            window.location.href = '/login';
+            console.warn('Dashboard stats 401 - letting base template handle auth');
             return;
         }
         

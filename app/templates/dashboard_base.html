@@ -219,41 +219,33 @@
         }
     }
 
-    // ── Session Management ──
-    async function loadUserSession() {
-        // 1. Check for token in URL (OAuth callback)
+    // ── Session Management (Synchronous Token Check) ──
+    (function initializeToken() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('token');
-
         if (urlToken) {
             localStorage.setItem('zp_token', urlToken);
-            // Clear stale user cache so we fetch fresh info
-            localStorage.removeItem('zp_user');
-            // Clean URL without triggering a page reload
+            localStorage.removeItem('zp_user'); // Reset user cache
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+    })();
 
+    async function loadUserSession() {
         const token = localStorage.getItem('zp_token');
-
-        // ── ONLY redirect to login if there is NO token at all ──
-        // Never redirect because of a failed API call — that causes redirect loops.
         if (!token) {
             window.location.href = '/login';
             return;
         }
 
-        // 2. Try to load cached user first (instant)
+        // 2. Try to load cached user first (instant UI)
         let user = null;
         const userStr = localStorage.getItem('zp_user');
         if (userStr) {
             try { user = JSON.parse(userStr); } catch (e) {}
         }
-
-        // Apply cached data immediately so the UI doesn't flicker
         if (user) applyUserToUI(user);
 
-        // 3. Refresh user data from API in the background
-        //    IMPORTANT: we NEVER redirect on failure here — just keep showing the dashboard.
+        // 3. Refresh user data in background
         try {
             const res = await fetch('/auth/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -262,20 +254,13 @@
                 user = await res.json();
                 localStorage.setItem('zp_user', JSON.stringify(user));
                 applyUserToUI(user);
-            } else if (res.status === 401) {
-                // Only clear token on explicit 401 Unauthorized (not 404, 500, 503 etc.)
-                // This means the token has been deliberately rejected, not a server glitch.
-                // Only redirect if we also have no cached user — belt-and-suspenders.
-                if (!user) {
-                    localStorage.removeItem('zp_token');
-                    localStorage.removeItem('zp_user');
-                    window.location.href = '/login';
-                }
+            } else if (res.status === 401 && !localStorage.getItem('zp_user')) {
+                // Only redirect if token is definitively dead AND we have no cache
+                localStorage.removeItem('zp_token');
+                window.location.href = '/login';
             }
-            // For all other errors (404, 500, 503 etc.) — silently ignore and keep the dashboard open.
         } catch (e) {
-            // Network error — server may be waking up. Do NOT redirect.
-            console.warn('[ZeroPhish] Could not reach /auth/me — staying on dashboard.', e.message);
+            console.warn('[ZeroPhish] Auth check failed (server sleep?), staying on dashboard.');
         }
     }
 
