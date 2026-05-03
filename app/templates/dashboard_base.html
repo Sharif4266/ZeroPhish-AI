@@ -29,8 +29,14 @@
 <body>
 
 <div class="dashboard-layout">
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+        <div class="mobile-close" id="mobile-close">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
         <a href="/" class="brand">
             <div class="brand-icon">
                 <i class="fa-solid fa-shield-halved"></i>
@@ -97,6 +103,9 @@
     <main class="main-wrapper">
         <!-- Top Header -->
         <header class="top-header">
+            <div class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
             <div class="greeting">
                 {% block greeting %}
                 <h1>Welcome back, Alex</h1>
@@ -288,6 +297,32 @@
             localStorage.removeItem('zp_token');
             localStorage.removeItem('zp_user');
             window.location.href = '/login';
+        });
+    }
+
+    // Mobile Sidebar Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const mobileClose = document.getElementById('mobile-close');
+
+    if (mobileMenuBtn && sidebar && sidebarOverlay) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('mobile-active');
+            sidebarOverlay.classList.add('active');
+        });
+
+        const closeSidebar = () => {
+            sidebar.classList.remove('mobile-active');
+            sidebarOverlay.classList.remove('active');
+        };
+
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        if (mobileClose) mobileClose.addEventListener('click', closeSidebar);
+        
+        // Auto-close on nav click
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', closeSidebar);
         });
     }
 

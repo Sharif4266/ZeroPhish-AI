@@ -20,6 +20,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ── Mobile Nav Toggle ───────────────────────────────
+    const mobileToggle = document.getElementById('mobile-nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('mobile-active');
+            mobileToggle.querySelector('i').classList.toggle('fa-bars');
+            mobileToggle.querySelector('i').classList.toggle('fa-xmark');
+        });
+
+        // Close on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('mobile-active');
+                mobileToggle.querySelector('i').classList.add('fa-bars');
+                mobileToggle.querySelector('i').classList.remove('fa-xmark');
+            });
+        });
+    }
+
     // ── Detect scan type from content ──────────────────
     function detectType(content) {
         if (/^https?:\/\//i.test(content) || /^www\./i.test(content)) return 'URL';

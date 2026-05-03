@@ -799,6 +799,151 @@ body {
     padding-right: 80px;
 }
 
+/* ── Mobile Landing Page Responsiveness ────────────────── */
+
+.mobile-nav-toggle {
+    display: none;
+    font-size: 24px;
+    color: var(--text-dark);
+    cursor: pointer;
+}
+
+.mobile-only {
+    display: none !important;
+}
+
+@media (max-width: 992px) {
+    .navbar {
+        padding: 16px 24px;
+        position: relative;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        flex-direction: column;
+        padding: 24px;
+        gap: 16px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-top: 1px solid var(--border-color);
+        z-index: 1000;
+    }
+
+    .nav-links.mobile-active {
+        display: flex;
+    }
+
+    .mobile-nav-toggle {
+        display: block;
+    }
+
+    .nav-actions {
+        display: none; /* Actions moved into nav-links for mobile */
+    }
+
+    .mobile-only {
+        display: block !important;
+    }
+
+    .nav-links li a {
+        font-size: 16px;
+        padding: 8px 0;
+        display: block;
+    }
+
+    .hero-content h1 {
+        font-size: 36px;
+    }
+
+    .hero-graphic {
+        display: none;
+    }
+
+    .hero-stats {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 24px;
+    }
+
+    .features-banner {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+        margin: 20px;
+    }
+
+    .hiw-steps {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .step-arrow {
+        transform: rotate(90deg);
+    }
+
+    .trusted-logos {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 32px;
+    }
+
+    .footer {
+        padding: 48px 24px 24px;
+    }
+
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-content h1 {
+        font-size: 28px;
+    }
+    
+    .scan-input-group {
+        flex-direction: column;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        gap: 12px;
+    }
+    
+    .scan-input-group input {
+        background: var(--white);
+        padding: 16px 20px 16px 48px;
+        border-radius: 12px;
+        width: 100%;
+        border: 1px solid var(--border-color);
+    }
+    
+    .scan-input-group .input-icon {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        z-index: 1;
+    }
+    
+    .btn-scan {
+        width: 100%;
+        justify-content: center;
+        padding: 16px;
+    }
+    
+    .scan-input-group {
+        position: relative;
+    }
+}
+
 /* Hero scan result */
 .hero-scan-result { margin-top: -28px; margin-bottom: 28px; }
 .hero-result-box {

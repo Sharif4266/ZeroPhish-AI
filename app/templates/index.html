@@ -20,18 +20,25 @@
     <div class="background-glow-2"></div>
 
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="logo">
             <div class="logo-icon">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <span>ZeroPhish AI</span>
         </div>
-        <ul class="nav-links">
+        
+        <div class="mobile-nav-toggle" id="mobile-nav-toggle">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+
+        <ul class="nav-links" id="nav-links">
             <li><a href="#features">Features</a></li>
             <li><a href="#how-it-works">How It Works</a></li>
             <li><a href="#trusted-by">Trusted By</a></li>
             <li><a href="/dashboard">Dashboard</a></li>
+            <li class="mobile-only"><a href="/login">Sign In</a></li>
+            <li class="mobile-only"><a href="/register">Get Started</a></li>
         </ul>
         <div class="nav-actions">
             <a href="/login" class="sign-in">Sign In</a>
