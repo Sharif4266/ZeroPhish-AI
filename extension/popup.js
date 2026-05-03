@@ -9,10 +9,11 @@ const btnClearResult= document.getElementById('btn-clear-result');
 const loadingWrap   = document.getElementById('loading');
 const resultCard    = document.getElementById('result-card');
 const errorBox      = document.getElementById('error-box');
-const authBanner    = document.getElementById('auth-banner');
-const authDot       = document.getElementById('auth-dot');
-const authText      = document.getElementById('auth-text');
 const authAction    = document.getElementById('auth-action');
+const emailSection   = document.getElementById('email-shield-section');
+const emailLinksList = document.getElementById('email-links-list');
+const linksContainer = document.getElementById('links-container');
+const btnScanEmail   = document.getElementById('btn-scan-email');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getRiskClass(result) {
@@ -216,22 +217,78 @@ btnCurrentTab.addEventListener('click', () => {
   });
 });
 
-btnClearResult.addEventListener('click', () => {
-  resultCard.classList.remove('visible');
-  hideError();
-  urlInput.value = '';
-  btnClear.classList.remove('visible');
+btnScanEmail.addEventListener('click', () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs[0]) return;
+    
+    // Disable button during scan
+    btnScanEmail.disabled = true;
+    btnScanEmail.textContent = 'Scanning...';
+    emailLinksList.style.display = 'block';
+    linksContainer.innerHTML = '<div style="padding: 10px; text-align:center; color:#64748b;">Extracting links from email...</div>';
+
+    chrome.tabs.sendMessage(tabs[0].id, { action: "extract_links" }, async (response) => {
+      if (chrome.runtime.lastError || !response || !response.links || response.links.length === 0) {
+        linksContainer.innerHTML = '<div style="padding: 10px; text-align:center; color:#64748b;">No external links found in this email.</div>';
+        btnScanEmail.disabled = false;
+        btnScanEmail.textContent = 'Scan Email';
+        return;
+      }
+
+      linksContainer.innerHTML = '';
+      const links = response.links.slice(0, 8); // Scan up to 8 links for performance
+      
+      for (const link of links) {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.padding = '6px 0';
+        row.style.borderBottom = '1px solid #334155';
+        
+        const linkDisplay = link.href.replace('https://', '').replace('http://', '').substring(0, 25) + '...';
+        row.innerHTML = `
+          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%; color: #94a3b8;">${linkDisplay}</div>
+          <div style="font-size: 0.6rem; color: #475569;">Analyzing...</div>
+        `;
+        linksContainer.appendChild(row);
+
+        try {
+          const res = await fetch(`${API_BASE}/api/scan`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: link.href, scan_type: 'URL' })
+          });
+          const data = await res.json();
+          const color = data.result === 'Safe' ? '#10b981' : (data.result === 'High Risk' ? '#ef4444' : '#f59e0b');
+          row.lastElementChild.innerHTML = `<span style="color: ${color}; font-weight: 700; font-size: 0.65rem;">${data.result.toUpperCase()}</span>`;
+        } catch (e) {
+          row.lastElementChild.textContent = 'Error';
+        }
+      }
+      
+      btnScanEmail.disabled = false;
+      btnScanEmail.textContent = 'Scan Again';
+    });
+  });
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateAuthBanner();
 
-  // Auto-fill current tab URL
+  // Auto-detect mail services
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0] && tabs[0].url && !tabs[0].url.startsWith('chrome://')) {
-      urlInput.value = tabs[0].url;
-      btnClear.classList.add('visible');
+    if (tabs[0] && tabs[0].url) {
+      const url = tabs[0].url;
+      if (url.includes('mail.google.com') || url.includes('outlook.live.com') || url.includes('outlook.office.com')) {
+        emailSection.style.display = 'block';
+      }
+      
+      if (!url.startsWith('chrome://')) {
+        urlInput.value = url;
+        btnClear.classList.add('visible');
+      }
     }
   });
 

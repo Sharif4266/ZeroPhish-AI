@@ -233,6 +233,25 @@
   </div>
 </div>
 
+<!-- Email Shield Section (Hidden by default) -->
+<div id="email-shield-section" style="display: none; padding: 0 16px 16px;">
+  <div style="background: rgba(59,130,246,0.1); border: 1px dashed rgba(59,130,246,0.3); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+    <div style="color: #3b82f6; font-size: 1.2rem;"><i class="fa-solid fa-envelope-shield"></i></div>
+    <div style="flex: 1;">
+      <div style="font-size: 0.75rem; font-weight: 700; color: #f1f5f9; margin-bottom: 2px;">Email Shield Active</div>
+      <div style="font-size: 0.65rem; color: #94a3b8;">Detected Gmail/Outlook session.</div>
+    </div>
+    <button id="btn-scan-email" style="background: #3b82f6; border: none; border-radius: 4px; color: white; padding: 4px 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer;">Scan Email</button>
+  </div>
+</div>
+
+<div id="email-links-list" style="display: none; margin: 0 16px 16px; padding: 12px; background: #1e293b; border-radius: 8px; border: 1px solid #334155;">
+  <div style="font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">Links Found in Email</div>
+  <div id="links-container" style="max-height: 120px; overflow-y: auto; font-size: 0.72rem;">
+    <!-- Links will be injected here -->
+  </div>
+</div>
+
 <div class="divider"></div>
 
 <!-- Loading -->
