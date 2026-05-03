@@ -224,60 +224,74 @@
         // 1. Check for token in URL (OAuth callback)
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('token');
-        
+
         if (urlToken) {
             localStorage.setItem('zp_token', urlToken);
-            // Clean URL
+            // Clear stale user cache so we fetch fresh info
+            localStorage.removeItem('zp_user');
+            // Clean URL without triggering a page reload
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         const token = localStorage.getItem('zp_token');
+
+        // ── ONLY redirect to login if there is NO token at all ──
+        // Never redirect because of a failed API call — that causes redirect loops.
         if (!token) {
             window.location.href = '/login';
             return;
         }
 
-        // 2. Load user data from storage or API
-        let userStr = localStorage.getItem('zp_user');
+        // 2. Try to load cached user first (instant)
         let user = null;
-
+        const userStr = localStorage.getItem('zp_user');
         if (userStr) {
-            try {
-                user = JSON.parse(userStr);
-            } catch (e) { console.error(e); }
+            try { user = JSON.parse(userStr); } catch (e) {}
         }
 
-        // Fetch fresh user data if missing or to keep sync
-        if (!user || urlToken) {
-            try {
-                const res = await fetch('/auth/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    user = await res.json();
-                    localStorage.setItem('zp_user', JSON.stringify(user));
-                } else {
-                    // Token invalid
+        // Apply cached data immediately so the UI doesn't flicker
+        if (user) applyUserToUI(user);
+
+        // 3. Refresh user data from API in the background
+        //    IMPORTANT: we NEVER redirect on failure here — just keep showing the dashboard.
+        try {
+            const res = await fetch('/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                user = await res.json();
+                localStorage.setItem('zp_user', JSON.stringify(user));
+                applyUserToUI(user);
+            } else if (res.status === 401) {
+                // Only clear token on explicit 401 Unauthorized (not 404, 500, 503 etc.)
+                // This means the token has been deliberately rejected, not a server glitch.
+                // Only redirect if we also have no cached user — belt-and-suspenders.
+                if (!user) {
                     localStorage.removeItem('zp_token');
+                    localStorage.removeItem('zp_user');
                     window.location.href = '/login';
-                    return;
                 }
-            } catch (e) {
-                console.error("Failed to fetch user profile", e);
             }
+            // For all other errors (404, 500, 503 etc.) — silently ignore and keep the dashboard open.
+        } catch (e) {
+            // Network error — server may be waking up. Do NOT redirect.
+            console.warn('[ZeroPhish] Could not reach /auth/me — staying on dashboard.', e.message);
         }
+    }
 
-        if (user) {
-            const initials = user.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            
-            document.getElementById('header-avatar').textContent = initials;
-            document.getElementById('dropdown-name').textContent = user.full_name;
-            document.getElementById('dropdown-email').textContent = user.email;
-            
-            const greeting = document.querySelector('.greeting h1');
-            if (greeting && greeting.textContent.includes('Welcome')) {
-                greeting.textContent = `Welcome back, ${user.full_name.split(' ')[0]}`;
-            }
+    function applyUserToUI(user) {
+        if (!user || !user.full_name) return;
+        const initials = user.full_name.trim().split(/\s+/).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const avatarEl = document.getElementById('header-avatar');
+        const nameEl   = document.getElementById('dropdown-name');
+        const emailEl  = document.getElementById('dropdown-email');
+        const greeting = document.querySelector('.greeting h1');
+
+        if (avatarEl)  avatarEl.textContent  = initials;
+        if (nameEl)    nameEl.textContent    = user.full_name;
+        if (emailEl)   emailEl.textContent   = user.email || '';
+        if (greeting && greeting.textContent.includes('Welcome')) {
+            greeting.textContent = `Welcome back, ${user.full_name.trim().split(/\s+/)[0]}`;
         }
     }
 
