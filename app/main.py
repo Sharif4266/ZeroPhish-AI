@@ -81,6 +81,10 @@ def read_login(request: Request):
 def read_register(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
 
+@app.get("/install-extension")
+def read_extension_guide(request: Request):
+    return templates.TemplateResponse(request=request, name="extension_guide.html")
+
 @app.get("/info/{page_id}")
 def read_info(request: Request, page_id: str):
     # Mapping for dynamic content
