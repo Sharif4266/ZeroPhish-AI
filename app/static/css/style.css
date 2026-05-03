@@ -917,6 +917,27 @@ body {
         gap: 32px;
     }
 
+    .step {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .step-arrow {
+        display: none; /* Hide arrows on mobile to save space */
+    }
+
+    .trusted-by {
+        padding: 40px 24px;
+        text-align: center;
+    }
+
+    .trusted-intro {
+        flex: none;
+        margin-bottom: 24px;
+        width: 100%;
+    }
+
     .footer {
         padding: 48px 24px 24px;
     }
@@ -924,6 +945,7 @@ body {
     .footer-links {
         grid-template-columns: repeat(2, 1fr);
         display: grid;
+        gap: 32px;
     }
 }
 
@@ -934,15 +956,22 @@ body {
     
     .hero-content h1 {
         font-size: 28px;
+        line-height: 1.2;
+    }
+
+    .hero-content p {
+        font-size: 15px;
+        margin-bottom: 32px;
     }
     
     .scan-input-group {
         flex-direction: column;
-        background: transparent;
-        box-shadow: none;
-        border: none;
-        padding: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
         gap: 12px;
+        margin-bottom: 32px;
     }
     
     .scan-input-group input {

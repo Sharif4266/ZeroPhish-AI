@@ -1005,6 +1005,16 @@ tr:last-child td {
         left: 0;
     }
 
+    .nav-item {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
+
+    .brand {
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
     .mobile-menu-btn, .mobile-close {
         display: flex;
     }
@@ -1027,10 +1037,19 @@ tr:last-child td {
 @media (max-width: 768px) {
     .top-header {
         height: 70px;
+        padding: 0 16px;
+    }
+
+    .header-actions {
+        gap: 8px;
     }
 
     .greeting h1 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
     }
 
     .greeting p {
