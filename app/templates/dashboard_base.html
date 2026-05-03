@@ -250,7 +250,7 @@
         // Fetch fresh user data if missing or to keep sync
         if (!user || urlToken) {
             try {
-                const res = await fetch('/api/auth/me', {
+                const res = await fetch('/auth/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
