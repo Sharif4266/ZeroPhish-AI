@@ -8,23 +8,23 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-grid" style="grid-template-columns: 260px 1fr; align-items: start;">
+<div class="grid-responsive grid-settings" style="align-items: start;">
     <!-- Settings Sidebar -->
-    <div class="card" style="padding: 16px 0;">
-        <nav style="display: flex; flex-direction: column;" id="settings-nav">
-            <a href="javascript:void(0)" class="nav-item active" data-tab="profile" style="margin: 0; border-radius: 0; padding: 12px 24px;">
+    <div class="card" style="padding: 8px 0;">
+        <nav class="settings-nav" id="settings-nav">
+            <a href="javascript:void(0)" class="nav-item active" data-tab="profile">
                 <i class="fa-solid fa-user"></i>
                 <span>Profile</span>
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-tab="security" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+            <a href="javascript:void(0)" class="nav-item" data-tab="security">
                 <i class="fa-solid fa-shield-halved"></i>
                 <span>Security</span>
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-tab="notifications" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+            <a href="javascript:void(0)" class="nav-item" data-tab="notifications">
                 <i class="fa-solid fa-bell"></i>
                 <span>Notifications</span>
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-tab="apikeys" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+            <a href="javascript:void(0)" class="nav-item" data-tab="apikeys">
                 <i class="fa-solid fa-key"></i>
                 <span>API Keys</span>
             </a>
@@ -155,14 +155,40 @@
 </div>
 
 <style>
-.switch input:checked + .slider { background-color: var(--primary); }
-.switch input:focus + .slider { box-shadow: 0 0 1px var(--primary); }
-.switch input:checked + .slider:before { transform: translateX(20px); }
-.slider:before {
-    position: absolute; content: ""; height: 18px; width: 18px;
-    left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+.grid-settings {
+    grid-template-columns: 260px 1fr;
 }
-.tab-pane { animation: fadeIn 0.3s ease-in-out; }
+.settings-nav {
+    display: flex;
+    flex-direction: column;
+}
+.settings-nav .nav-item {
+    margin: 0;
+    border-radius: 0;
+    padding: 12px 24px;
+    color: var(--text-main);
+}
+
+@media (max-width: 992px) {
+    .grid-settings {
+        grid-template-columns: 1fr;
+    }
+    .settings-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 16px;
+        gap: 8px;
+    }
+    .settings-nav .nav-item {
+        padding: 12px 16px;
+        white-space: nowrap;
+        border-radius: 8px;
+    }
+    .settings-nav .nav-item.active {
+        background: var(--primary-light);
+    }
+}
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 {% endblock %}

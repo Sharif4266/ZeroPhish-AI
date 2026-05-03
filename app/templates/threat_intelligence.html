@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-grid" style="grid-template-columns: 2fr 1fr;">
+<div class="grid-responsive grid-2-cols" style="align-items: start;">
     <div class="grid-left">
         <!-- Global Threat Map Placeholder -->
         <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
@@ -23,18 +23,20 @@
         
         <div class="card">
             <h3 class="card-title">Your High Risk Detections</h3>
-            <table style="margin-top: 16px;">
-                <thead>
-                    <tr>
-                        <th>Threat Profile</th>
-                        <th>Scan Type</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody id="ti-threats-tbody">
-                    <tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">Loading...</td></tr>
-                </tbody>
-            </table>
+            <div style="width: 100%; overflow-x: auto;">
+                <table style="margin-top: 16px; min-width: 400px; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Threat Profile</th>
+                            <th>Scan Type</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ti-threats-tbody">
+                        <tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     

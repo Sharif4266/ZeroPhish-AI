@@ -16,19 +16,19 @@
 
 {% block content %}
 <!-- Top Row: Input & Basic Result -->
-<div class="content-grid" style="grid-template-columns: 1.2fr 1fr; max-width: 1400px; margin: 0 auto; gap: 24px; align-items: stretch;">
+<div class="grid-responsive grid-2-cols" style="max-width: 1400px; margin: 0 auto; align-items: stretch;">
     
     <!-- LEFT: Input Card -->
     <div class="card" style="padding: 32px; display: flex; flex-direction: column; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); background: var(--card-bg);">
         <h2 style="margin: 0 0 24px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Enter URL to Analyze</h2>
         
-        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+        <div class="flex-mobile-column" style="display: flex; gap: 16px; margin-bottom: 24px;">
             <div style="flex: 1; position: relative; display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-main);">
                 <i class="fa-solid fa-link" style="padding: 0 16px; color: #94a3b8;"></i>
                 <input id="url-input" type="text" placeholder="https://secure-login-verification.com/update" style="width: 100%; padding: 16px 16px 16px 0; border: none; outline: none; background: transparent; font-size: 0.95rem; color: var(--text-main);">
                 <button onclick="document.getElementById('url-input').value=''" style="padding: 0 16px; background: transparent; border: none; color: #94a3b8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <button id="run-analysis-btn" style="background: var(--primary); color: white; border: none; padding: 0 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(99,91,255,0.2); white-space: nowrap;">
+            <button id="run-analysis-btn" style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(99,91,255,0.2); white-space: nowrap;">
                 <i class="fa-solid fa-bolt"></i> Analyze URL
             </button>
         </div>
@@ -62,7 +62,7 @@
 <div id="detailed-results-area" style="display: none; max-width: 1400px; margin: 24px auto 40px auto;">
     
     <!-- Middle Row: Overview | Breakdown | Explanation -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: stretch; margin-bottom: 24px;">
+    <div class="grid-responsive grid-3-cols" style="margin-bottom: 24px;">
         
         <!-- URL Overview -->
         <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg);">

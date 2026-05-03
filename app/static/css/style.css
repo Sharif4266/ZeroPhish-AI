@@ -881,9 +881,24 @@ body {
 
     .scan-result-card {
         width: 100%;
-        max-width: 380px;
-        padding: 24px;
-        transform: scale(0.9);
+        max-width: 100%;
+        padding: 24px 20px;
+        transform: scale(1);
+        margin: 20px auto;
+        box-shadow: none;
+    }
+    .score-circle {
+        width: 80px;
+        height: 80px;
+    }
+    .score {
+        font-size: 24px;
+    }
+    .risk-score-container {
+        gap: 16px;
+    }
+    .tags {
+        flex-wrap: wrap;
     }
 
     .floating-icon {
@@ -1012,6 +1027,17 @@ body {
     border: 1px solid;
     gap: 16px;
     animation: fadeSlideIn 0.3s ease;
+}
+@media (max-width: 480px) {
+    .hero-result-box {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    .hres-left {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 .hero-result-box.high-risk { background: #FEF2F2; border-color: #FECACA; color: #991b1b; }
 .hero-result-box.suspicious { background: #FFFBEB; border-color: #FCD34D; color: #92400e; }

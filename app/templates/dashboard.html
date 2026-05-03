@@ -1,7 +1,7 @@
 {% extends "dashboard_base.html" %}
 
 {% block content %}
-<div class="content-grid">
+<div class="grid-responsive grid-dashboard">
     <!-- LEFT COLUMN -->
     <div class="grid-left">
         <!-- Latest Scan Result -->
@@ -16,7 +16,7 @@
                 </div>
             </div>
             <!-- Populated state (hidden until data loads) -->
-            <div id="latest-scan-content" style="display:none; align-items: center; gap: 32px; padding: 12px 0;">
+            <div id="latest-scan-content" class="flex-mobile-column" style="display:none; align-items: center; gap: 32px; padding: 12px 0;">
                 <div style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <div id="latestScanGauge" style="width: 100%; height: 100%;"></div>
                     <div style="position: absolute; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -24,10 +24,10 @@
                         <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 2px;">Risk Score</span>
                     </div>
                 </div>
-                <div style="flex: 1;">
+                <div class="text-mobile-center" style="flex: 1;">
                     <div id="latest-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 0.8125rem; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;"></div>
                     <p id="latest-detail" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 0.9375rem; line-height: 1.6; font-weight: 500;"></p>
-                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; background: var(--bg-main); padding: 6px 12px; border-radius: 6px; width: fit-content;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; background: var(--bg-main); padding: 6px 12px; border-radius: 6px; width: fit-content; margin: 0 auto;">
                         <i class="fa-regular fa-clock" style="font-size: 0.875rem;"></i>
                         <span id="latest-time">—</span>
                     </div>
@@ -93,21 +93,23 @@
                 <h3 class="card-title" style="margin:0;">Recent Scans</h3>
                 <a href="/history" class="view-all">View all</a>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Content</th>
-                        <th>Type</th>
-                        <th>Risk Score</th>
-                        <th>Result</th>
-                        <th>Scanned At</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="recent-scans-tbody">
-                    <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:32px;">Loading...</td></tr>
-                </tbody>
-            </table>
+            <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th>Content</th>
+                            <th>Type</th>
+                            <th>Risk Score</th>
+                            <th>Result</th>
+                            <th>Scanned At</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-scans-tbody">
+                        <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:32px;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Banner Card -->
@@ -193,6 +195,17 @@
         </div>
     </div>
 </div>
+
+<style>
+.grid-dashboard {
+    grid-template-columns: 1fr 340px;
+}
+@media (max-width: 1200px) {
+    .grid-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}

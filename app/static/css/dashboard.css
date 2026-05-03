@@ -122,6 +122,41 @@
     color: #f1f1f1 !important;
 }
 
+/* ===== RESPONSIVE UTILITIES ===== */
+.grid-responsive {
+    display: grid;
+    gap: 24px;
+}
+
+.grid-2-cols { grid-template-columns: repeat(2, 1fr); }
+.grid-3-cols { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 1024px) {
+    .grid-2-cols, .grid-3-cols {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-mobile-padding {
+        padding: 20px !important;
+    }
+    .text-mobile-center {
+        text-align: center;
+    }
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .flex-mobile-column {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+}
+
+/* ===== BASE STYLES ===== */
 * {
     margin: 0;
     padding: 0;

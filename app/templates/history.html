@@ -10,25 +10,26 @@
 {% block content %}
 <div class="content-grid" style="grid-template-columns: 1fr;">
     <div class="card">
-        <div class="table-header-row" style="margin-bottom: 24px; padding: 12px 0;">
-            <div style="display: flex; gap: 16px; align-items: center;">
+        <div class="table-header-row flex-mobile-column" style="margin-bottom: 24px; padding: 12px 0;">
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
                 <h3 class="card-title" style="margin:0;">Scan Logs</h3>
                 <span id="history-total" class="badge" style="background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px 10px; font-weight: 500;">0 total scans</span>
             </div>
             
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <div class="analyze-input-wrapper" style="padding: 0 16px; min-width: 300px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div class="flex-mobile-column" style="display: flex; gap: 12px; align-items: center; width: 100%; max-width: 500px;">
+                <div class="analyze-input-wrapper" style="padding: 0 16px; flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; width: 100%;">
                     <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); font-size: 0.875rem;"></i>
-                    <input type="text" id="history-search" placeholder="Search by content, type, or result..." style="padding: 10px 0; font-size: 0.875rem; color: var(--text-main); background: transparent; border: none; outline: none; width: 100%;">
+                    <input type="text" id="history-search" placeholder="Search logs..." style="padding: 10px 0; font-size: 0.875rem; color: var(--text-main); background: transparent; border: none; outline: none; width: 100%;">
                 </div>
-                <button class="btn-outline" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-size: 0.875rem; background: var(--card-bg); color: var(--text-main);">
+                <button class="btn-outline hide-on-mobile" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-size: 0.875rem; background: var(--card-bg); color: var(--text-main);">
                     <i class="fa-solid fa-sliders" style="color: var(--text-muted);"></i>
                     <span>Filters</span>
                 </button>
             </div>
         </div>
         
-        <table>
+        <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
             <thead>
                 <tr>
                     <th>Content</th>
@@ -43,6 +44,7 @@
                 <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:32px;">Loading scan history...</td></tr>
             </tbody>
         </table>
+    </div>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
             <span id="history-showing" style="color: var(--text-muted); font-size: 0.875rem;">Showing 0 entries</span>

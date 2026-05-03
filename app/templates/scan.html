@@ -18,7 +18,7 @@
 <div style="width: 100%; display: flex; flex-direction: column;">
 
 <!-- LEFT COLUMN: Email Content Input -->
-<div class="content-grid" style="display: grid; grid-template-columns: 1.4fr 1fr; width: 100%; margin: 0; padding-top: 24px; gap: 24px; align-items: start;">
+<div class="grid-responsive grid-2-cols" style="width: 100%; margin: 0; padding-top: 24px; align-items: start;">
 
     <div class="card" style="padding: 0; display: flex; flex-direction: column; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden; background: var(--card-bg);">
         
@@ -32,13 +32,13 @@
 
         <!-- Meta Fields -->
         <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px;">
-            <div style="display: grid; grid-template-columns: 80px 1fr; align-items: center;">
-                <span style="color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">From</span>
-                <input id="scan-from" type="text" placeholder="sender@example.com" style="border: none; outline: none; font-size: 0.875rem; color: var(--text-main); background: transparent; padding: 4px 0;">
+            <div class="flex-mobile-column" style="display: flex; align-items: center; gap: 12px;">
+                <span style="color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; width: 80px;">From</span>
+                <input id="scan-from" type="text" placeholder="sender@example.com" style="flex: 1; border: none; outline: none; font-size: 0.875rem; color: var(--text-main); background: transparent; padding: 4px 0;">
             </div>
-            <div style="display: grid; grid-template-columns: 80px 1fr; align-items: center;">
-                <span style="color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Subject</span>
-                <input id="scan-subject" type="text" placeholder="Email subject line" style="border: none; outline: none; font-size: 0.875rem; color: var(--text-main); background: transparent; padding: 4px 0;">
+            <div class="flex-mobile-column" style="display: flex; align-items: center; gap: 12px;">
+                <span style="color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; width: 80px;">Subject</span>
+                <input id="scan-subject" type="text" placeholder="Email subject line" style="flex: 1; border: none; outline: none; font-size: 0.875rem; color: var(--text-main); background: transparent; padding: 4px 0;">
             </div>
         </div>
 
