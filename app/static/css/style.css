@@ -855,12 +855,39 @@ body {
         display: block;
     }
 
+    .hero {
+        flex-direction: column;
+        padding: 40px 24px;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .hero-content {
+        max-width: 100%;
+    }
+
     .hero-content h1 {
-        font-size: 36px;
+        font-size: 32px;
+        margin-bottom: 20px;
     }
 
     .hero-graphic {
-        display: none;
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        order: 2;
+        margin-top: 20px;
+    }
+
+    .scan-result-card {
+        width: 100%;
+        max-width: 380px;
+        padding: 24px;
+        transform: scale(0.9);
+    }
+
+    .floating-icon {
+        display: none; /* Hide floating icons to reduce clutter on small screens */
     }
 
     .hero-stats {
