@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlmodel
+jinja2
+python-multipart
+bcrypt
+pyjwt
+httpx
+python-dotenv
+pydantic-settings
+scikit-learn
+pandas
+joblib

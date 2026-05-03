@@ -1,0 +1,175 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Scan History | ZeroPhish AI{% endblock %}
+
+{% block greeting %}
+    <h1>Scan History</h1>
+    <p>Review and filter all your past scans and detections.</p>
+{% endblock %}
+
+{% block content %}
+<div class="content-grid" style="grid-template-columns: 1fr;">
+    <div class="card">
+        <div class="table-header-row" style="margin-bottom: 24px; padding: 12px 0;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <h3 class="card-title" style="margin:0;">Scan Logs</h3>
+                <span id="history-total" class="badge" style="background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px 10px; font-weight: 500;">0 total scans</span>
+            </div>
+            
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="analyze-input-wrapper" style="padding: 0 16px; min-width: 300px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); font-size: 0.875rem;"></i>
+                    <input type="text" id="history-search" placeholder="Search by content, type, or result..." style="padding: 10px 0; font-size: 0.875rem; color: var(--text-main); background: transparent; border: none; outline: none; width: 100%;">
+                </div>
+                <button class="btn-outline" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-size: 0.875rem; background: var(--card-bg); color: var(--text-main);">
+                    <i class="fa-solid fa-sliders" style="color: var(--text-muted);"></i>
+                    <span>Filters</span>
+                </button>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Content</th>
+                    <th>Type</th>
+                    <th>Risk Score</th>
+                    <th>Result</th>
+                    <th>Scanned At</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="history-tbody">
+                <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:32px;">Loading scan history...</td></tr>
+            </tbody>
+        </table>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <span id="history-showing" style="color: var(--text-muted); font-size: 0.875rem;">Showing 0 entries</span>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-outline" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-outline" style="background: var(--primary); color: white; border-color: var(--primary);">1</button>
+                <button class="btn-outline" disabled><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#history-tbody tr:hover {
+    background: var(--bg-main) !important;
+}
+
+thead th {
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 12px;
+    border-bottom: 2px solid var(--border-color);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const TYPE_ICONS = { URL: 'fa-link', Email: 'fa-envelope', Message: 'fa-comment-dots' };
+
+function badgeClass(result) {
+    if (result === 'High Risk')   return 'badge-high';
+    if (result === 'Medium Risk') return 'badge-medium';
+    if (result === 'Low Risk')    return 'badge-medium';
+    return 'badge-safe';
+}
+
+function scoreClass(result) {
+    if (result === 'High Risk')   return 'score-high';
+    if (result === 'Medium Risk') return 'score-medium';
+    if (result === 'Low Risk')    return 'score-medium';
+    return 'score-safe';
+}
+
+let allScans = [];
+
+function renderHistory(scans) {
+    const tbody = document.getElementById('history-tbody');
+    
+    document.getElementById('history-total').textContent = `${scans.length.toLocaleString()} total scans`;
+    document.getElementById('history-showing').textContent = `Showing ${scans.length} entries`;
+
+    if (scans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:48px;">No scan history found. Try adjusting your search.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = scans.map(s => {
+        const icon  = TYPE_ICONS[s.scan_type] || 'fa-file';
+        const badge = badgeClass(s.result);
+        const short = s.content.length > 55 ? s.content.substring(0, 55) + '...' : s.content;
+        
+        // Determine risk score color
+        let scoreColor = '#10b981'; // safe
+        if (s.risk_score > 70) scoreColor = '#ef4444'; // high
+        else if (s.risk_score > 30) scoreColor = '#f59e0b'; // medium
+
+        return `<tr style="transition: all 0.2s; border-bottom: 1px solid var(--border-color);">
+            <td class="content-cell" style="padding: 16px 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--bg-main); display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0;">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <span title="${s.content}" style="font-family: ui-monospace, monospace; font-size: 0.8125rem; color: var(--text-main); font-weight: 500;">${short}</span>
+                </div>
+            </td>
+            <td style="color: var(--text-muted); font-size: 0.8125rem; font-weight: 500;">${s.scan_type}</td>
+            <td style="padding: 16px 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 40px; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden;">
+                        <div style="width: ${s.risk_score}%; height: 100%; background: ${scoreColor};"></div>
+                    </div>
+                    <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-main); min-width: 24px;">${s.risk_score}</span>
+                </div>
+            </td>
+            <td><span class="badge ${badge}" style="font-size: 0.75rem; padding: 4px 10px;">${s.result}</span></td>
+            <td class="time-cell" style="color: var(--text-muted); font-size: 0.8125rem;">${s.scanned_at}</td>
+            <td class="action-cell">
+                <button style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-main)'" onmouseout="this.style.background='transparent'">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function loadHistory() {
+    try {
+        const token = localStorage.getItem('zp_token');
+        const res = await fetch('/api/scans?limit=100', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.status === 401) {
+            localStorage.removeItem('zp_token');
+            window.location.href = '/login';
+            return;
+        }
+        
+        allScans = await res.json();
+        renderHistory(allScans);
+    } catch (e) {
+        console.error('Failed to load scan history:', e);
+        document.getElementById('history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ef4444; padding:32px;">Failed to load history. Please refresh.</td></tr>';
+    }
+}
+
+// Simple client-side search
+document.getElementById('history-search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    const filtered = allScans.filter(s => s.content.toLowerCase().includes(q) || s.scan_type.toLowerCase().includes(q) || s.result.toLowerCase().includes(q));
+    renderHistory(filtered);
+});
+
+loadHistory();
+</script>
+{% endblock %}

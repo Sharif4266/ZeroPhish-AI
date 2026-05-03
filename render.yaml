@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: zerophish-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: zerophish-db
+          property: connectionString
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: REDIRECT_URI_BASE
+        value: https://zerophish-ai.onrender.com # Change this after your first deployment
+
+databases:
+  - name: zerophish-db
+    plan: free

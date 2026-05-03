@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroPhish AI - Phishing Protection</title>
+    <meta name="description"
+        content="ZeroPhish detects suspicious links, scams, and harmful websites in seconds. Real-time phishing protection powered by advanced neural analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+
+<body>
+    <div class="background-glow"></div>
+    <div class="background-glow-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span>ZeroPhish AI</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#trusted-by">Trusted By</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="/login" class="sign-in">Sign In</a>
+            <a href="/register" class="btn btn-primary">Get Started Free</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="home">
+        <div class="hero-content">
+            <div class="badge">Phishing Protection, Built for Everyone</div>
+            <h1>Stay one step ahead<br>of <span class="highlight">phishing attacks.</span></h1>
+            <p>ZeroPhish AI detects suspicious links, scams, and harmful websites in seconds so you can browse, click,
+                and connect with confidence.</p>
+
+            <div class="scan-input-group">
+                <i class="fa-solid fa-link input-icon"></i>
+                <input type="text" id="hero-scan-input" placeholder="Paste a link or email to scan...">
+                <button class="btn btn-primary btn-scan" id="hero-scan-btn">Scan Now <i
+                        class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Scan Result (hidden by default) -->
+            <div class="hero-scan-result" id="hero-scan-result" style="display:none;"></div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-icon" style="background-color: rgba(99, 91, 255, 0.1); color: var(--primary);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <div>
+                        <span class="stat-value">50+</span>
+                        <span class="stat-label">Threat Sources</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background-color: rgba(99, 91, 255, 0.1); color: var(--primary);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <span class="stat-value">&lt; 2s</span>
+                        <span class="stat-label">Analysis Speed</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background-color: rgba(99, 91, 255, 0.1); color: var(--primary);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    </div>
+                    <div>
+                        <span class="stat-value">Live</span>
+                        <span class="stat-label">Neural Audit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-graphic">
+            <div class="floating-icon icon-1"><i class="fa-solid fa-link"></i></div>
+            <div class="floating-icon icon-2"><i class="fa-solid fa-shield"></i></div>
+            <div class="floating-icon icon-3"><i class="fa-solid fa-envelope"></i></div>
+
+            <div class="scan-result-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-check text-green"></i> Scan Result
+                </div>
+                <div class="risk-score-container">
+                    <div class="score-circle">
+                        <span class="score">85</span>
+                        <span class="total">/100</span>
+                    </div>
+                    <div class="risk-details">
+                        <h3 class="text-red">High Risk</h3>
+                        <p>This link is potentially dangerous.</p>
+                    </div>
+                </div>
+                <div class="tags">
+                    <span class="tag tag-red"><i class="fa-solid fa-shield-virus"></i> Phishing</span>
+                    <span class="tag tag-red-light"><i class="fa-solid fa-bug"></i> Malicious</span>
+                    <span class="tag tag-yellow"><i class="fa-solid fa-triangle-exclamation"></i> Suspicious</span>
+                </div>
+                <div class="analysis-list">
+                    <div class="analysis-item">
+                        <div class="item-title"><i class="fa-solid fa-globe text-purple"></i> Domain Information</div>
+                        <div class="item-status">View details <i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="item-title"><i class="fa-solid fa-arrow-right-arrow-left text-blue"></i> Redirect
+                            Analysis</div>
+                        <div class="item-status text-gray">2 redirects detected <i
+                                class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="item-title"><i class="fa-solid fa-lock text-yellow"></i> SSL Certificate</div>
+                        <div class="item-status text-red">Invalid certificate <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="item-title"><i class="fa-solid fa-shield-cat text-green"></i> Website Reputation
+                        </div>
+                        <div class="item-status text-gray">Poor reputation score <i
+                                class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    Scanned 5 seconds ago
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Banner -->
+    <section class="features-banner" id="features">
+        <div class="feature">
+            <div class="feature-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="feature-text">
+                <h3>Real-time Protection</h3>
+                <p>Checks links and emails instantly against our threat intelligence.</p>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>
+            </div>
+            <div class="feature-text">
+                <h3>Neural Threat Analysis</h3>
+                <p>Advanced neural networks identify even the newest phishing techniques without manual intervention.</p>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="feature-text">
+                <h3>Instant Results</h3>
+                <p>Get a clear risk score and detailed analysis in seconds.</p>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+            <div class="feature-text">
+                <h3>Your Privacy First</h3>
+                <p>We don't store your data. Ever.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="hiw-intro">
+            <h2>How It Works</h2>
+            <div class="divider"></div>
+            <p>Three simple steps to a safer online experience.</p>
+        </div>
+        <div class="hiw-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-icon"><i class="fa-solid fa-link"></i></div>
+                <div class="step-content">
+                    <h3>Submit</h3>
+                    <p>Paste a link or email you want to check.</p>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <div class="step-content">
+                    <h3>Scan</h3>
+                    <p>Our system analyzes it using multiple engines.</p>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .52-.88l7-4a1 1 0 0 1 .97 0l7 4A1 1 0 0 1 20 6v7z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="step-content">
+                    <h3>Stay Safe</h3>
+                    <p>Get the result and decide with confidence.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="trusted-by" id="trusted-by">
+        <div class="trusted-intro">
+            <p><strong>Trusted by Individuals</strong><br>and Teams Worldwide</p>
+        </div>
+        <div class="trusted-logos">
+            <span><i class="fa-brands fa-google"></i> Google</span>
+            <span><i class="fa-brands fa-microsoft"></i> Microsoft</span>
+            <span><strong
+                    style="color: #E50914; font-family: sans-serif; font-size: 1.5rem; letter-spacing: -1px;">NETFLIX</strong></span>
+            <span><i class="fa-brands fa-airbnb"></i> airbnb</span>
+            <span><i class="fa-brands fa-paypal"></i> PayPal</span>
+            <span><i class="fa-brands fa-shopify"></i> shopify</span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <span>ZeroPhish AI</span>
+                </div>
+                <p>Stay one step ahead of phishing attacks. Browse, click, and connect with absolute confidence.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <a href="/info/about" class="btn-footer-action">About Us</a>
+                        <a href="/info/contact" class="btn-footer-action">Contact</a>
+                        <a href="/info/careers" class="btn-footer-action">Careers</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <a href="/info/privacy" class="btn-footer-action">Privacy Policy</a>
+                        <a href="/info/terms" class="btn-footer-action">Terms of Service</a>
+                        <a href="/info/cookies" class="btn-footer-action">Cookie Policy</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <a href="/info/contact" class="btn-footer-action">Help Center</a>
+                        <a href="/info/faq" class="btn-footer-action">FAQ</a>
+                        <a href="/info/docs" class="btn-footer-action">Documentation</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <a href="https://github.com" class="btn-footer-action"><i class="fa-brands fa-github"></i> GitHub</a>
+                        <a href="https://linkedin.com" class="btn-footer-action"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                        <a href="mailto:support@zerophish.com" class="btn-footer-action"><i class="fa-solid fa-envelope"></i> Email Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 ZeroPhish AI. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', path='js/script.js') }}"></script>
+</body>
+
+</html>

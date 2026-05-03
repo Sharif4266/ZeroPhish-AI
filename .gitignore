@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+venv312/
+.env
+zerophish.db
+.vscode/
+.idea/
+server.log
+*.docx

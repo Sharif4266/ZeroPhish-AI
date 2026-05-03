@@ -1,0 +1,139 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Threat Intelligence | ZeroPhish AI{% endblock %}
+
+{% block greeting %}
+    <h1>Threat Intelligence</h1>
+    <p>Global threat landscape and zero-day phishing trends.</p>
+{% endblock %}
+
+{% block content %}
+<div class="content-grid" style="grid-template-columns: 2fr 1fr;">
+    <div class="grid-left">
+        <!-- Global Threat Map Placeholder -->
+        <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
+            <h3 class="card-title">Global Threat Origins</h3>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-main); border-radius: 8px; border: 1px dashed var(--border-color); color: var(--text-muted);">
+                <div style="text-align: center;">
+                    <i class="fa-solid fa-earth-americas" style="font-size: 3rem; margin-bottom: 16px; color: var(--border-dark);"></i>
+                    <p style="margin: 0; font-size: 0.875rem;">Live Threat Map Simulation</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="card-title">Your High Risk Detections</h3>
+            <table style="margin-top: 16px;">
+                <thead>
+                    <tr>
+                        <th>Threat Profile</th>
+                        <th>Scan Type</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="ti-threats-tbody">
+                    <tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="grid-right">
+        <!-- Risk Distribution -->
+        <div class="card">
+            <h3 class="card-title">Personal Network Risk</h3>
+            
+            <div class="donut-container" id="tiDonutChart">
+                <div class="donut-center">
+                    <h3 id="ti-total-scans">—</h3>
+                    <p>Scans</p>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-high"></div> URLs</div>
+                    <div class="legend-value" id="ti-urls">—</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-medium"></div> Emails</div>
+                    <div class="legend-value" id="ti-emails">—</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-low"></div> Messages</div>
+                    <div class="legend-value" id="ti-messages">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let tiChart = null;
+
+    function renderTiDonut(urls, emails, messages) {
+        if (tiChart) {
+            tiChart.updateSeries([urls, emails, messages]);
+            return;
+        }
+        tiChart = new ApexCharts(document.querySelector("#tiDonutChart"), {
+            series: [urls, emails, messages],
+            chart: { type: 'donut', height: 220 },
+            colors: ['#ef4444', '#f59e0b', '#3b82f6'],
+            plotOptions: {
+                pie: {
+                    donut: { size: '75%', background: 'transparent' },
+                    expandOnClick: false
+                }
+            },
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            stroke: { show: false },
+            tooltip: { enabled: false }
+        });
+        tiChart.render();
+    }
+
+    async function loadTI() {
+        try {
+            const token = localStorage.getItem('zp_token');
+            const res = await fetch('/api/dashboard/stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) { window.location.href = '/login'; return; }
+            
+            const stats = await res.json();
+            
+            document.getElementById('ti-total-scans').textContent = stats.total;
+            
+            const b = stats.type_breakdown;
+            document.getElementById('ti-urls').textContent = `${b.urls} (${stats.total ? Math.round(b.urls/stats.total*100) : 0}%)`;
+            document.getElementById('ti-emails').textContent = `${b.emails} (${stats.total ? Math.round(b.emails/stats.total*100) : 0}%)`;
+            document.getElementById('ti-messages').textContent = `${b.messages} (${stats.total ? Math.round(b.messages/stats.total*100) : 0}%)`;
+            
+            renderTiDonut(b.urls, b.emails, b.messages);
+
+            const tbody = document.getElementById('ti-threats-tbody');
+            if (stats.recent_high_risk.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">No high risk threats detected.</td></tr>';
+            } else {
+                tbody.innerHTML = stats.recent_high_risk.map(s => {
+                    const short = s.content.length > 40 ? s.content.substring(0, 40) + '...' : s.content;
+                    return `<tr>
+                        <td class="content-cell" title="${s.content}"><i class="fa-solid fa-shield-virus" style="color:var(--risk-high);"></i> ${short}</td>
+                        <td>${s.scan_type}</td>
+                        <td><span class="badge badge-high">${s.risk_score}</span></td>
+                    </tr>`;
+                }).join('');
+            }
+
+        } catch (e) {
+            console.error('Failed to load TI data', e);
+        }
+    }
+    
+    loadTI();
+</script>
+{% endblock %}

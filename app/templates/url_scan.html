@@ -1,0 +1,451 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}URL Link Detector | ZeroPhish AI{% endblock %}
+
+{% block greeting %}
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div>
+            <h1 style="margin: 0 0 4px 0; font-size: 1.5rem; font-weight: 700; color: var(--text-main);">URL Link Detector</h1>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">Check any URL for phishing, malware, and other online threats.</p>
+        </div>
+        <button style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 14px; font-size: 0.875rem; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; height: 32px; margin-top: -12px;">
+            <i class="fa-regular fa-circle-question"></i> Help & Guide
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+<!-- Top Row: Input & Basic Result -->
+<div class="content-grid" style="grid-template-columns: 1.2fr 1fr; max-width: 1400px; margin: 0 auto; gap: 24px; align-items: stretch;">
+    
+    <!-- LEFT: Input Card -->
+    <div class="card" style="padding: 32px; display: flex; flex-direction: column; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); background: var(--card-bg);">
+        <h2 style="margin: 0 0 24px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Enter URL to Analyze</h2>
+        
+        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <div style="flex: 1; position: relative; display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-main);">
+                <i class="fa-solid fa-link" style="padding: 0 16px; color: #94a3b8;"></i>
+                <input id="url-input" type="text" placeholder="https://secure-login-verification.com/update" style="width: 100%; padding: 16px 16px 16px 0; border: none; outline: none; background: transparent; font-size: 0.95rem; color: var(--text-main);">
+                <button onclick="document.getElementById('url-input').value=''" style="padding: 0 16px; background: transparent; border: none; color: #94a3b8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button id="run-analysis-btn" style="background: var(--primary); color: white; border: none; padding: 0 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(99,91,255,0.2); white-space: nowrap;">
+                <i class="fa-solid fa-bolt"></i> Analyze URL
+            </button>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center; font-size: 0.8125rem; flex-wrap: wrap;">
+            <span style="color: #64748b;">Try examples:</span>
+            <span class="example-chip" onclick="document.getElementById('url-input').value='https://google.com'">https://google.com</span>
+            <span class="example-chip" onclick="document.getElementById('url-input').value='https://amazon.com'">https://amazon.com</span>
+            <span class="example-chip" onclick="document.getElementById('url-input').value='http://paypal-update-account.tk'">http://paypal-update...</span>
+            <span style="color: var(--primary); cursor: pointer; margin-left: auto; font-weight: 500;" onclick="document.getElementById('url-input').value=''">Clear All</span>
+        </div>
+    </div>
+
+    <!-- RIGHT: Scan Result Summary -->
+    <div id="ai-placeholder" class="card" style="padding: 32px; border-radius: 12px; border: 1px dashed var(--border-color); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color: var(--border-dark); margin-bottom: 12px;"></i>
+        <div style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Awaiting URL Analysis...</div>
+    </div>
+    
+    <div id="ai-scanning" class="card" style="display: none; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); flex-direction: column; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-radar fa-spin" style="font-size: 2rem; color: #2563eb; margin-bottom: 16px;"></i>
+        <h3 style="margin: 0 0 8px 0; font-size: 1rem; font-weight: 600; color: var(--text-main);">Tracking Network Routes...</h3>
+    </div>
+
+    <div id="scan-result-top" class="card" style="display: none; padding: 24px 32px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <!-- Injected via JS -->
+    </div>
+</div>
+
+<!-- Detailed Data Grid -->
+<div id="detailed-results-area" style="display: none; max-width: 1400px; margin: 24px auto 40px auto;">
+    
+    <!-- Middle Row: Overview | Breakdown | Explanation -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: stretch; margin-bottom: 24px;">
+        
+        <!-- URL Overview -->
+        <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg);">
+            <h3 style="margin: 0 0 24px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">URL Overview</h3>
+            <div id="url-overview-list" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- JS Injected -->
+            </div>
+        </div>
+
+        <!-- Risk Breakdown & Threat Tags -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); flex: 1;">
+                <h3 style="margin: 0 0 24px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Risk Breakdown</h3>
+                <div id="risk-breakdown-list">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+            
+            <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg);">
+                <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Threat Tags</h3>
+                <div id="threat-tags-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Explanation & Action -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); flex: 1;">
+                <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-wand-magic-sparkles" style="color: #6366f1; margin-right: 6px;"></i> AI Explanation</h3>
+                <p id="ai-reasoning-text" style="margin: 0 0 24px 0; font-size: 0.875rem; color: #475569; line-height: 1.6;"></p>
+                
+                <h4 style="margin: 0 0 16px 0; font-size: 0.875rem; font-weight: 700; color: var(--text-main);">What This Means</h4>
+                <div id="what-this-means-list" style="display: flex; flex-direction: column; gap: 16px; font-size: 0.8125rem; color: #475569;">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg);">
+                <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Recommended Action</h3>
+                <div id="recommended-action-box">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row: Redirect Chain -->
+    <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg);">
+        <h3 style="margin: 0 0 24px 0; font-size: 1rem; font-weight: 700; color: var(--text-main);">Redirect Chain</h3>
+        <div id="redirect-chain-container" style="display: flex; align-items: center; overflow-x: auto; padding-bottom: 8px; gap: 16px;">
+            <!-- JS Injected -->
+        </div>
+    </div>
+</div>
+
+<style>
+.example-chip {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.example-chip:hover {
+    background: #dbeafe;
+}
+.overview-row {
+    display: grid;
+    grid-template-columns: 28px 100px 1fr 24px;
+    align-items: center;
+    font-size: 0.8125rem;
+}
+.overview-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overview-label { color: #64748b; font-weight: 500; }
+.overview-value { color: #0f172a; font-weight: 500; word-break: break-all; }
+
+/* Progress Bar Styles */
+.risk-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 80px;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.risk-label { font-size: 0.8125rem; color: #475569; font-weight: 500; }
+.risk-bar-bg { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.risk-bar-fill { height: 100%; border-radius: 4px; transition: width 1s; }
+.risk-value { font-size: 0.8125rem; color: #475569; text-align: right; font-weight: 500; }
+
+.redirect-step {
+    border-radius: 8px;
+    padding: 16px;
+    min-width: 280px;
+    border: 1px solid var(--border-color);
+}
+.redirect-arrow {
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+}
+
+/* SVG Circle Progress */
+.circular-chart { display: block; margin: 0; max-width: 140px; max-height: 140px; }
+.circle-bg { fill: none; stroke: #f1f5f9; stroke-width: 2.8; }
+.circle { fill: none; stroke-width: 2.8; stroke-linecap: round; transition: stroke-dasharray 1.5s ease-out; }
+.percentage { fill: #0f172a; font-family: sans-serif; font-weight: 800; font-size: 0.5em; text-anchor: middle; }
+.out-of { fill: #64748b; font-family: sans-serif; font-weight: 600; font-size: 0.2em; text-anchor: middle; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const STYLE_MAP = {
+    'High Risk':   { color: '#ef4444', bg: '#fef2f2', title: 'This link is dangerous', text_color: '#dc2626' },
+    'Medium Risk': { color: '#f59e0b', bg: '#fffbeb', title: 'This link is suspicious', text_color: '#d97706' },
+    'Low Risk':    { color: '#eab308', bg: '#fefce8', title: 'Exercise caution', text_color: '#ca8a04' },
+    'Safe':        { color: '#10b981', bg: '#ecfdf5', title: 'This link looks safe', text_color: '#059669' },
+};
+
+function getBarLabel(score) {
+    if (score >= 80) return { label: 'High Risk', color: '#ef4444' };
+    if (score >= 50) return { label: 'Suspicious', color: '#f59e0b' };
+    if (score > 0)   return { label: 'Low Risk', color: '#eab308' };
+    return { label: 'Safe', color: '#10b981' };
+}
+function getInvBarLabel(score) {
+    if (score >= 80) return { label: 'Very Bad', color: '#ef4444' };
+    if (score >= 50) return { label: 'Suspicious', color: '#f59e0b' };
+    if (score > 0)   return { label: 'Neutral', color: '#eab308' };
+    return { label: 'Valid', color: '#10b981' }; // Changed to Valid for domain age/reputation
+}
+
+function renderUI(data) {
+    const st = STYLE_MAP[data.result] || STYLE_MAP['Safe'];
+    const b = data.breakdown || {};
+    const nw = data.network || {};
+
+    // 1. Top Right Summary
+    document.getElementById('scan-result-top').innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 1rem;"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Scan Result</div>
+            <span style="background: ${st.bg}; color: ${st.text_color}; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${data.result}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 24px; align-items: center;">
+            <div style="position: relative; width: 120px; height: 120px;">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="circle" stroke="${st.color}" stroke-dasharray="${data.risk_score}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <text x="18" y="18.5" class="percentage">${data.risk_score}</text>
+                    <text x="18" y="24.5" class="out-of">/100</text>
+                </svg>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 8px 0; color: ${st.text_color}; font-size: 1.125rem; font-weight: 700;">${st.title}</h2>
+                <p style="margin: 0; color: #475569; font-size: 0.8125rem; line-height: 1.5;">Our AI model found strong indicators that this URL is a ${data.result === 'Safe' ? 'safe destination' : 'phishing attempt'}.</p>
+            </div>
+        </div>
+    `;
+
+    // 2. URL Overview
+    let sslHtml = nw.ssl_status === "Valid / Trusted" ? `<span style="background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">${nw.ssl_status}</span>` : `<span style="background: #fef2f2; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">${nw.ssl_status}</span>`;
+    
+    document.getElementById('url-overview-list').innerHTML = `
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#f1f5f9; color:#64748b;"><i class="fa-solid fa-link"></i></div>
+            <div class="overview-label">URL</div>
+            <div class="overview-value" style="font-size: 0.75rem;">${nw.url || data.content}</div>
+            <div style="text-align:right;"><i class="fa-regular fa-copy" style="color:#94a3b8; cursor:pointer;"></i></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fa-solid fa-globe"></i></div>
+            <div class="overview-label">Domain</div>
+            <div class="overview-value">${nw.domain || '-'}</div>
+            <div style="text-align:right;"><i class="fa-regular fa-copy" style="color:#94a3b8; cursor:pointer;"></i></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#ecfdf5; color:#10b981;"><i class="fa-solid fa-network-wired"></i></div>
+            <div class="overview-label">IP Address</div>
+            <div class="overview-value">${nw.ip_address || '-'}</div>
+            <div style="text-align:right;"><i class="fa-regular fa-copy" style="color:#94a3b8; cursor:pointer;"></i></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="overview-label">Status</div>
+            <div class="overview-value"><span style="background: ${st.bg}; color: ${st.text_color}; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">${data.result}</span></div>
+            <div></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#f1f5f9; color:#64748b;"><i class="fa-solid fa-hashtag"></i></div>
+            <div class="overview-label">URL Length</div>
+            <div class="overview-value">${(nw.url || data.content).length} characters</div>
+            <div></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <div class="overview-label">Redirects</div>
+            <div class="overview-value">${nw.redirect_chain ? nw.redirect_chain.length - 1 : 0} redirects detected</div>
+            <div></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#ecfdf5; color:#10b981;"><i class="fa-solid fa-lock"></i></div>
+            <div class="overview-label">SSL Certificate</div>
+            <div class="overview-value">${sslHtml}</div>
+            <div></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#e0e7ff; color:#6366f1;"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="overview-label">Domain Age</div>
+            <div class="overview-value">${nw.domain_age_days !== null ? nw.domain_age_days + ' days old' : 'Unknown'}</div>
+            <div></div>
+        </div>
+        <div class="overview-row">
+            <div class="overview-icon" style="background:#f1f5f9; color:#64748b;"><i class="fa-regular fa-clock"></i></div>
+            <div class="overview-label">Last Seen</div>
+            <div class="overview-value">Just now</div>
+            <div></div>
+        </div>
+    `;
+
+    // 3. Risk Breakdown
+    const dr = getInvBarLabel(b.sender_reputation || (data.risk_score >= 50 ? 80 : 10));
+    const ul = getBarLabel(b.url_links || data.risk_score);
+    const ca = getBarLabel(b.content_analysis || data.risk_score);
+    const wa = getInvBarLabel(nw.domain_age_days !== null ? (nw.domain_age_days < 30 ? 90 : 10) : 50);
+    
+    document.getElementById('risk-breakdown-list').innerHTML = `
+        <div class="risk-row"><span class="risk-label">Domain Reputation</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${dr.color === '#ef4444' ? 85 : 20}%; background: ${dr.color};"></div></div><span class="risk-value">${dr.label}</span></div>
+        <div class="risk-row"><span class="risk-label">URL / Links</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${ul.color === '#ef4444' ? 90 : 20}%; background: ${ul.color};"></div></div><span class="risk-value">${ul.label}</span></div>
+        <div class="risk-row"><span class="risk-label">SSL Certificate</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${nw.ssl_status && nw.ssl_status.includes('Invalid') ? 85 : 20}%; background: ${nw.ssl_status && nw.ssl_status.includes('Invalid') ? '#ef4444' : '#10b981'};"></div></div><span class="risk-value">${nw.ssl_status && nw.ssl_status.includes('Invalid') ? 'Suspicious' : 'Valid'}</span></div>
+        <div class="risk-row"><span class="risk-label">Content Analysis</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${ca.color === '#ef4444' ? 80 : 20}%; background: ${ca.color};"></div></div><span class="risk-value">${ca.label}</span></div>
+        <div class="risk-row"><span class="risk-label">Website Age</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${wa.color === '#ef4444' ? 95 : 20}%; background: ${wa.color};"></div></div><span class="risk-value">${wa.label}</span></div>
+        <div class="risk-row"><span class="risk-label">Blacklist Status</span><div class="risk-bar-bg"><div class="risk-bar-fill" style="width: ${data.risk_score > 80 ? 70 : 20}%; background: ${data.risk_score > 80 ? '#ef4444' : '#10b981'};"></div></div><span class="risk-value">${data.risk_score > 80 ? 'Listed' : 'Clean'}</span></div>
+    `;
+
+    // 4. Threat Tags
+    let badgesHtml = '';
+    let tags = data.heuristic_flags || [];
+    if(data.risk_score > 50 && tags.length === 0) tags = ["Phishing", "Suspicious Domain", "Malicious Link"];
+    tags.forEach(flag => {
+        let textColor = data.risk_score > 50 ? '#dc2626' : '#059669';
+        let bgColor = data.risk_score > 50 ? '#fef2f2' : '#ecfdf5';
+        badgesHtml += `<span style="background: ${bgColor}; color: ${textColor}; font-size: 0.75rem; font-weight: 500; padding: 6px 12px; border-radius: 6px;">${flag}</span>`;
+    });
+    document.getElementById('threat-tags-list').innerHTML = badgesHtml || '<span style="color:#94a3b8; font-size: 0.8125rem;">No threats detected</span>';
+
+    // 5. AI Explanation
+    document.getElementById('ai-reasoning-text').innerText = data.reasoning;
+    
+    let meansHtml = '';
+    if (data.risk_score >= 50) {
+        meansHtml = `
+            <div style="display:flex; gap:12px; align-items:center;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-shield-halved" style="color:#3b82f6; font-size:12px;"></i></div>
+                <span>This URL may try to steal your personal information.</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#fef2f2; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-ban" style="color:#ef4444; font-size:12px;"></i></div>
+                <span>Avoid clicking on this link or sharing it with others.</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#ecfdf5; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-user-shield" style="color:#10b981; font-size:12px;"></i></div>
+                <span>If you already visited this site, monitor your accounts.</span>
+            </div>
+        `;
+        document.getElementById('recommended-action-box').innerHTML = `
+            <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; padding: 20px;">
+                <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #dc2626; font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="color: #dc2626; font-weight: 600; font-size: 0.875rem; margin-bottom: 4px;">Do not visit this link.</div>
+                        <div style="color: #ef4444; font-size: 0.8125rem;">This link is highly likely to be a phishing attempt.</div>
+                    </div>
+                </div>
+                <button style="background: transparent; border: none; color: #2563eb; font-weight: 600; font-size: 0.8125rem; display: flex; align-items: center; gap: 8px; cursor:pointer; padding: 0;"><i class="fa-solid fa-flag"></i> Report This URL</button>
+            </div>
+        `;
+    } else {
+        meansHtml = `
+            <div style="display:flex; gap:12px; align-items:center;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#ecfdf5; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-circle-check" style="color:#10b981; font-size:12px;"></i></div>
+                <span>This URL appears to be safe and legitimate.</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-shield-halved" style="color:#3b82f6; font-size:12px;"></i></div>
+                <span>No structural or semantic threats were found.</span>
+            </div>
+        `;
+        document.getElementById('recommended-action-box').innerHTML = `
+            <div style="background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 8px; padding: 20px;">
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <i class="fa-solid fa-shield-check" style="color: #059669; font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="color: #059669; font-weight: 600; font-size: 0.875rem; margin-bottom: 4px;">Safe to proceed.</div>
+                        <div style="color: #10b981; font-size: 0.8125rem;">No immediate action required.</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    document.getElementById('what-this-means-list').innerHTML = meansHtml;
+
+    // 6. Redirect Chain
+    let chainHtml = '';
+    if (nw.redirect_chain && nw.redirect_chain.length > 0) {
+        nw.redirect_chain.forEach((step, idx) => {
+            const isLast = idx === nw.redirect_chain.length - 1;
+            let bg = isLast && data.risk_score >= 50 ? '#fef2f2' : (step.status_code === 200 ? '#ecfdf5' : '#fffbeb');
+            let br = isLast && data.risk_score >= 50 ? '#fee2e2' : (step.status_code === 200 ? '#d1fae5' : '#fef3c7');
+            let iconColor = isLast && data.risk_score >= 50 ? '#ef4444' : (step.status_code === 200 ? '#10b981' : '#f59e0b');
+            let icon = isLast && data.risk_score >= 50 ? 'fa-globe' : 'fa-check-circle';
+            if (step.status_code !== 200 && !isLast) icon = 'fa-shield';
+            
+            chainHtml += `
+                <div class="redirect-step" style="background: ${bg}; border-color: ${br};">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.8125rem; color: ${iconColor};">
+                            <i class="fa-solid ${icon}"></i> Step ${step.step} ${isLast ? '(Final Destination)' : ''}
+                        </div>
+                        <span style="background: ${step.status_code === 200 ? '#d1fae5' : (isLast && data.risk_score >= 50 ? '#fee2e2' : '#fef3c7')}; color: ${step.status_code === 200 ? '#059669' : (isLast && data.risk_score >= 50 ? '#dc2626' : '#d97706')}; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${step.status_code} ${isLast ? '' : 'Redirect'}</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #475569; word-break: break-all; font-family: ui-monospace, monospace;">${step.url}</div>
+                </div>
+            `;
+            if (!isLast) {
+                chainHtml += `<div class="redirect-arrow"><i class="fa-solid fa-arrow-right-long"></i></div>`;
+            }
+        });
+    } else {
+        chainHtml = `<div style="color:#94a3b8; font-size:0.875rem;">No redirect chain data available.</div>`;
+    }
+    document.getElementById('redirect-chain-container').innerHTML = chainHtml;
+
+    // Show elements
+    document.getElementById('ai-scanning').style.display = 'none';
+    document.getElementById('scan-result-top').style.display = 'block';
+    document.getElementById('detailed-results-area').style.display = 'block';
+}
+
+document.getElementById('run-analysis-btn').addEventListener('click', async function () {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) return;
+
+    // UI Feedback
+    document.getElementById('ai-placeholder').style.display = 'none';
+    document.getElementById('scan-result-top').style.display = 'none';
+    document.getElementById('detailed-results-area').style.display = 'none';
+    document.getElementById('ai-scanning').style.display = 'flex';
+    this.disabled = true;
+
+    try {
+        const token = localStorage.getItem('zp_token');
+        const res = await fetch('/api/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ content: url, scan_type: 'URL' })
+        });
+        
+        if (res.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Scan failed.');
+        
+        setTimeout(() => renderUI(data), 10);
+    } catch (err) {
+        alert("Error: " + err.message);
+        document.getElementById('ai-scanning').style.display = 'none';
+        document.getElementById('ai-placeholder').style.display = 'flex';
+    } finally {
+        this.disabled = false;
+    }
+});
+</script>
+{% endblock %}

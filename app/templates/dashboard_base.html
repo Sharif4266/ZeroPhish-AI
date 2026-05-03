@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        // Prevent theme flicker
+        const theme = localStorage.getItem('zp_theme');
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard | ZeroPhish AI{% endblock %}</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ApexCharts for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="/" class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="brand-text">
+                <h2>ZeroPhish AI</h2>
+                <p>Neural Threat Analysis</p>
+            </div>
+        </a>
+
+        <nav class="nav-menu">
+            <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' or not active_page %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/scan" class="nav-item {% if active_page == 'scan' %}active{% endif %}">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Email Scan</span>
+            </a>
+            <a href="/url-scan" class="nav-item {% if active_page == 'url_scan' %}active{% endif %}">
+                <i class="fa-solid fa-link"></i>
+                <span>URL Scanner</span>
+            </a>
+            <a href="/history" class="nav-item {% if active_page == 'history' %}active{% endif %}">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Scan History</span>
+            </a>
+            <a href="/threat-intelligence" class="nav-item {% if active_page == 'threat-intelligence' %}active{% endif %}">
+                <i class="fa-solid fa-shield-virus"></i>
+                <span>Threat Intelligence</span>
+            </a>
+            <a href="/reports" class="nav-item {% if active_page == 'reports' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Reports</span>
+            </a>
+            <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="pro-plan-card">
+            <h4><i class="fa-solid fa-sparkles"></i> Pro Plan</h4>
+            <p>You're using Pro Plan</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <span class="pro-stats">2,431 / 5,000 scans used</span>
+            <button class="btn-upgrade">Upgrade Plan</button>
+        </div>
+
+        <a href="#" class="help-link">
+            <div class="icon-box">
+                <i class="fa-regular fa-circle-question"></i>
+            </div>
+            <div>
+                Need Help?
+                <p>Visit our help center <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.6rem; margin-left: 2px;"></i></p>
+            </div>
+        </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="greeting">
+                {% block greeting %}
+                <h1>Welcome back, Alex</h1>
+                <p>Here's what's happening with your security scans today.</p>
+                {% endblock %}
+            </div>
+            <div class="header-actions">
+                <div class="header-notification" id="header-notification-btn" style="position: relative; cursor: pointer;">
+                    <button class="icon-btn" style="position: relative; pointer-events: none;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="header-bell-dot" style="position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid var(--bg-main); box-sizing: border-box; padding: 0;"></span>
+                    </button>
+                    <div class="dropdown-menu" id="notificationDropdown" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; width: 280px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 50; overflow: hidden;">
+                        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Notifications</span>
+                            <span id="mark-all-read-btn" style="font-size: 0.75rem; color: var(--primary); cursor: pointer;">Mark all read</span>
+                        </div>
+                        <div style="padding: 0; max-height: 250px; overflow-y: auto;">
+                            <div class="notif-item" style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: flex-start; background: transparent; cursor: pointer;">
+                                <div class="notif-unread-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; margin-top: 6px; flex-shrink: 0;"></div>
+                                <div>
+                                    <p style="margin: 0 0 4px; font-size: 0.8125rem; font-weight: 600; color: var(--text-main);">High Risk URL Detected</p>
+                                    <p style="margin: 0 0 4px; font-size: 0.75rem; color: var(--text-muted);">A malicious link was found in your recent scan.</p>
+                                    <p style="margin: 0; font-size: 0.65rem; color: #94a3b8;">2 minutes ago</p>
+                                </div>
+                            </div>
+                            <div style="padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: transparent; margin-top: 6px; flex-shrink: 0;"></div>
+                                <div>
+                                    <p style="margin: 0 0 4px; font-size: 0.8125rem; font-weight: 500; color: var(--text-main);">Weekly Report Ready</p>
+                                    <p style="margin: 0 0 4px; font-size: 0.75rem; color: var(--text-muted);">Your security summary for this week is available.</p>
+                                    <p style="margin: 0; font-size: 0.65rem; color: #94a3b8;">1 day ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 8px; border-top: 1px solid var(--border-color); text-align: center;">
+                            <a href="#" style="font-size: 0.75rem; color: var(--primary); text-decoration: none; font-weight: 500;">View all notifications</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-profile" id="header-profile-btn">
+                    <div class="user-avatar" id="header-avatar">S</div>
+                    <div class="dropdown-menu" id="profileDropdown" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; width: 200px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 50;">
+                        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
+                            <p id="dropdown-name" style="margin: 0; font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Sarah Baker</p>
+                            <p id="dropdown-email" style="margin: 4px 0 0; font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">sarah@example.com</p>
+                        </div>
+                        <div style="padding: 8px 0;">
+                            <a href="/settings" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: var(--text-main); text-decoration: none;"><i class="fa-solid fa-gear" style="width: 20px; color: var(--text-muted);"></i> Settings</a>
+                            <a href="#" id="logout-btn" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #ef4444; text-decoration: none;"><i class="fa-solid fa-arrow-right-from-bracket" style="width: 20px;"></i> Sign out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Specific Content -->
+        {% block content %}
+        {% endblock %}
+    </main>
+</div>
+
+<!-- Page Specific Scripts -->
+{% block scripts %}
+{% endblock %}
+
+<script>
+    // Profile Dropdown Toggle
+    const profileBtn = document.getElementById('header-profile-btn');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'none' ? 'block' : 'none';
+            if (notifDropdown) notifDropdown.style.display = 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target)) {
+                profileDropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // Notification Dropdown Toggle
+    const notifBtn = document.getElementById('header-notification-btn');
+    const notifDropdown = document.getElementById('notificationDropdown');
+
+    if (notifBtn && notifDropdown) {
+        notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifDropdown.style.display = notifDropdown.style.display === 'none' ? 'block' : 'none';
+            if (profileDropdown) profileDropdown.style.display = 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!notifBtn.contains(e.target)) {
+                notifDropdown.style.display = 'none';
+            }
+        });
+        
+        // Mark all as read logic
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Hide main bell dot
+                const bellDot = document.getElementById('header-bell-dot');
+                if (bellDot) bellDot.style.display = 'none';
+                
+                // Hide dots inside dropdown and remove blue background
+                document.querySelectorAll('.notif-unread-dot').forEach(dot => {
+                    dot.style.background = 'transparent';
+                });
+                document.querySelectorAll('.notif-item').forEach(item => {
+                    item.style.background = 'transparent';
+                });
+            });
+        }
+    }
+
+    // ── Session Management ──
+    async function loadUserSession() {
+        // 1. Check for token in URL (OAuth callback)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        
+        if (urlToken) {
+            localStorage.setItem('zp_token', urlToken);
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        const token = localStorage.getItem('zp_token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        // 2. Load user data from storage or API
+        let userStr = localStorage.getItem('zp_user');
+        let user = null;
+
+        if (userStr) {
+            try {
+                user = JSON.parse(userStr);
+            } catch (e) { console.error(e); }
+        }
+
+        // Fetch fresh user data if missing or to keep sync
+        if (!user || urlToken) {
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    user = await res.json();
+                    localStorage.setItem('zp_user', JSON.stringify(user));
+                } else {
+                    // Token invalid
+                    localStorage.removeItem('zp_token');
+                    window.location.href = '/login';
+                    return;
+                }
+            } catch (e) {
+                console.error("Failed to fetch user profile", e);
+            }
+        }
+
+        if (user) {
+            const initials = user.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            
+            document.getElementById('header-avatar').textContent = initials;
+            document.getElementById('dropdown-name').textContent = user.full_name;
+            document.getElementById('dropdown-email').textContent = user.email;
+            
+            const greeting = document.querySelector('.greeting h1');
+            if (greeting && greeting.textContent.includes('Welcome')) {
+                greeting.textContent = `Welcome back, ${user.full_name.split(' ')[0]}`;
+            }
+        }
+    }
+
+    // Logout
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('zp_token');
+            localStorage.removeItem('zp_user');
+            window.location.href = '/login';
+        });
+    }
+
+    // Run on load
+    loadUserSession();
+</script>
+
+</body>
+</html>

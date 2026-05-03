@@ -1,0 +1,435 @@
+{% extends "dashboard_base.html" %}
+
+{% block content %}
+<div class="content-grid">
+    <!-- LEFT COLUMN -->
+    <div class="grid-left">
+        <!-- Latest Scan Result -->
+        <div class="card" id="latest-scan-card" style="padding: 24px; margin-bottom: 24px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); background: var(--card-bg);">
+            <h3 style="margin: 0 0 24px 0; font-size: 1.125rem; font-weight: 600; color: var(--text-main);">Latest Scan Result</h3>
+            <!-- Empty state (shown when no scans yet) -->
+            <div id="latest-scan-empty" style="display:flex; align-items:center; gap:16px; color:#94a3b8; padding:8px 0;">
+                <i class="fa-solid fa-shield" style="font-size:2.5rem; opacity:0.3; color: var(--text-muted);"></i>
+                <div>
+                    <p style="margin:0; font-weight:500; color: var(--text-muted);">No scans yet</p>
+                    <p style="margin:4px 0 0; font-size:0.875rem; color: var(--text-light);">Run your first scan to see results here.</p>
+                </div>
+            </div>
+            <!-- Populated state (hidden until data loads) -->
+            <div id="latest-scan-content" style="display:none; align-items: center; gap: 32px; padding: 12px 0;">
+                <div style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div id="latestScanGauge" style="width: 100%; height: 100%;"></div>
+                    <div style="position: absolute; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <span id="latest-score" style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); line-height: 1;">—</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 2px;">Risk Score</span>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div id="latest-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 0.8125rem; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;"></div>
+                    <p id="latest-detail" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 0.9375rem; line-height: 1.6; font-weight: 500;"></p>
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; background: var(--bg-main); padding: 6px 12px; border-radius: 6px; width: fit-content;">
+                        <i class="fa-regular fa-clock" style="font-size: 0.875rem;"></i>
+                        <span id="latest-time">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Total Scans</span>
+                    <i class="fa-solid fa-chart-simple kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="kpi-total">—</div>
+                <div class="kpi-trend">
+                    <i class="fa-solid fa-arrow-trend-up trend-up"></i>
+                    <span class="kpi-trend-text">All time</span>
+                </div>
+                <div class="sparkline-container" id="spark1"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Threats Detected</span>
+                    <i class="fa-solid fa-triangle-exclamation kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="kpi-threats">—</div>
+                <div class="kpi-trend">
+                    <i class="fa-solid fa-arrow-trend-up trend-down"></i>
+                    <span class="kpi-trend-text">High + Medium risk</span>
+                </div>
+                <div class="sparkline-container" id="spark2"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Safe</span>
+                    <i class="fa-solid fa-shield-check kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="kpi-safe">—</div>
+                <div class="kpi-trend">
+                    <i class="fa-solid fa-arrow-trend-up trend-up"></i>
+                    <span class="kpi-trend-text">Clean results</span>
+                </div>
+                <div class="sparkline-container" id="spark3"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Detection Rate</span>
+                    <i class="fa-solid fa-bullseye kpi-icon"></i>
+                </div>
+                <div class="kpi-value" id="kpi-rate">—</div>
+                <div class="kpi-trend">
+                    <i class="fa-solid fa-arrow-trend-up trend-up"></i>
+                    <span class="kpi-trend-text">Threats / Total</span>
+                </div>
+                <div class="sparkline-container" id="spark4"></div>
+            </div>
+        </div>
+
+        <!-- Recent Scans Table -->
+        <div class="card">
+            <div class="table-header-row">
+                <h3 class="card-title" style="margin:0;">Recent Scans</h3>
+                <a href="/history" class="view-all">View all</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Content</th>
+                        <th>Type</th>
+                        <th>Risk Score</th>
+                        <th>Result</th>
+                        <th>Scanned At</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="recent-scans-tbody">
+                    <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:32px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Banner Card -->
+        <div class="banner-card">
+            <i class="fa-solid fa-xmark banner-close"></i>
+            <div class="banner-img-container">
+                <div class="banner-shield"><i class="fa-solid fa-shield-halved"></i></div>
+            </div>
+            <div class="banner-content">
+                <h3>Stay ahead of threats</h3>
+                <p>Enable real-time protection on your browser and email.</p>
+                <div class="banner-actions">
+                    <button class="btn-secondary">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome" width="16">
+                        Install Extension
+                    </button>
+                    <a href="#" class="learn-more">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="grid-right">
+        <!-- Risk Distribution -->
+        <div class="card">
+            <h3 class="card-title">Risk Distribution</h3>
+            <div class="donut-container" id="donutChart">
+                <div class="donut-center">
+                    <h3 id="donut-total">—</h3>
+                    <p>Total</p>
+                </div>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-high"></div> High Risk</div>
+                    <div class="legend-value" id="legend-high">—</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-medium"></div> Medium Risk</div>
+                    <div class="legend-value" id="legend-medium">—</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-low"></div> Low Risk</div>
+                    <div class="legend-value" id="legend-low">—</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-label"><div class="dot dot-safe"></div> Safe</div>
+                    <div class="legend-value" id="legend-safe">—</div>
+                </div>
+            </div>
+            <div class="insight-box" style="margin-top: 24px;">
+                <div class="insight-icon"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="insight-text" id="insight-text">
+                    <p>Loading threat intelligence...</p>
+                    <span>Fetching your scan data.</span>
+                </div>
+                <i class="fa-solid fa-chevron-up insight-trend"></i>
+            </div>
+        </div>
+
+        <!-- Recent High Risk Detections -->
+        <div class="card">
+            <div class="table-header-row">
+                <h3 class="card-title" style="margin:0;">Recent High Risk Detections</h3>
+                <a href="/history" class="view-all">View all</a>
+            </div>
+            <div class="detection-list" id="detection-list">
+                <div style="text-align:center; color:#94a3b8; padding:32px 0; font-size:0.875rem;">Loading...</div>
+            </div>
+            <a href="/history" class="btn-outline" style="text-decoration:none; margin-top:16px; display:inline-flex; gap:8px; align-items:center;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> View All Scan History
+            </a>
+        </div>
+
+        <!-- Scans Over Time -->
+        <div class="card">
+            <div class="chart-header">
+                <h3 class="card-title" style="margin:0;">Scans Over Time</h3>
+                <select class="chart-select"><option>This Session</option></select>
+            </div>
+            <div class="area-chart-container" id="areaChart"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const TYPE_ICONS = { URL: 'fa-link', Email: 'fa-envelope', Message: 'fa-comment-dots' };
+
+function badgeClass(result) {
+    if (result === 'High Risk')   return 'badge-high';
+    if (result === 'Medium Risk') return 'badge-medium';
+    if (result === 'Low Risk')    return 'badge-medium';
+    return 'badge-safe';
+}
+function scoreClass(result) {
+    if (result === 'High Risk')   return 'score-high';
+    if (result === 'Medium Risk') return 'score-medium';
+    if (result === 'Low Risk')    return 'score-medium';
+    return 'score-safe';
+}
+function pct(n, total) {
+    if (!total) return '0%';
+    return (n / total * 100).toFixed(1) + '%';
+}
+
+// ── Chart instances ──────────────────────────────────────────────────────────
+let gaugeChart   = null;
+let donutChart   = null;
+let areaChart    = null;
+
+function initSparklines() {
+    const spark = { chart: { type: 'line', height: 40, sparkline: { enabled: true } }, stroke: { curve: 'smooth', width: 2 } };
+    new ApexCharts(document.querySelector('#spark1'), { ...spark, series: [{ data: [0] }], colors: ['var(--primary)'] }).render();
+    new ApexCharts(document.querySelector('#spark2'), { ...spark, series: [{ data: [0] }], colors: ['#ef4444'] }).render();
+    new ApexCharts(document.querySelector('#spark3'), { ...spark, series: [{ data: [0] }], colors: ['#10b981'] }).render();
+    new ApexCharts(document.querySelector('#spark4'), { ...spark, series: [{ data: [0] }], colors: ['#8b5cf6'] }).render();
+}
+
+function initGauge(score, result) {
+    const colorMap = { 'High Risk': '#ef4444', 'Medium Risk': '#f59e0b', 'Low Risk': '#f59e0b', 'Safe': '#10b981' };
+    const color = colorMap[result] || 'var(--primary)';
+    
+    if (gaugeChart) { 
+        gaugeChart.updateOptions({ colors: [color] });
+        gaugeChart.updateSeries([score]); 
+        return; 
+    }
+    
+    gaugeChart = new ApexCharts(document.querySelector('#latestScanGauge'), {
+        series: [score],
+        chart: { 
+            type: 'radialBar', 
+            width: '100%',
+            height: '100%',
+            sparkline: { enabled: true }
+        },
+        plotOptions: { 
+            radialBar: { 
+                hollow: { size: '70%', background: 'transparent' }, 
+                track: { 
+                    background: 'var(--border-color)', 
+                    strokeWidth: '100%',
+                    opacity: 0.1
+                }, 
+                dataLabels: { show: false } 
+            } 
+        },
+        stroke: { lineCap: 'round' },
+        colors: [color]
+    });
+    gaugeChart.render();
+}
+
+function initDonut(high, medium, low, safe) {
+    const series = [high, medium, low, safe];
+    if (donutChart) { donutChart.updateSeries(series); return; }
+    donutChart = new ApexCharts(document.querySelector('#donutChart'), {
+        series,
+        chart: { type: 'donut', height: 220 },
+        colors: ['#ef4444', '#f59e0b', '#eab308', '#10b981'],
+        plotOptions: { pie: { donut: { size: '75%', background: 'transparent' }, expandOnClick: false } },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        stroke: { show: false },
+        tooltip: { enabled: false }
+    });
+    donutChart.render();
+}
+
+function initAreaChart(scanHistory) {
+    // Build daily scan counts from scan history
+    const counts = {};
+    scanHistory.forEach(s => {
+        const d = s.scanned_at_raw ? s.scanned_at_raw.substring(0, 10) : 'Today';
+        counts[d] = (counts[d] || 0) + 1;
+    });
+    const labels = Object.keys(counts).slice(-12);
+    const data   = labels.map(l => counts[l]);
+
+    if (areaChart) { areaChart.updateSeries([{ name: 'Scans', data }]); return; }
+    areaChart = new ApexCharts(document.querySelector('#areaChart'), {
+        series: [{ name: 'Scans', data: data.length ? data : [0] }],
+        chart: { type: 'area', height: 180, toolbar: { show: false }, zoom: { enabled: false } },
+        colors: ['var(--primary)'],
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 2 },
+        xaxis: { categories: labels.length ? labels : ['No data'], labels: { style: { colors: '#94a3b8', fontSize: '10px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+        yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '10px' }, formatter: v => Math.round(v) } },
+        grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } } }
+    });
+    areaChart.render();
+}
+
+// ── Populate DOM ─────────────────────────────────────────────────────────────
+function populateDashboard(stats) {
+    const { total, high_risk, medium_risk, low_risk, safe, latest_scan, recent_scans, recent_high_risk } = stats;
+    const threats = high_risk + medium_risk + low_risk;
+
+    // KPIs
+    document.getElementById('kpi-total').textContent   = total.toLocaleString();
+    document.getElementById('kpi-threats').textContent = threats.toLocaleString();
+    document.getElementById('kpi-safe').textContent    = safe.toLocaleString();
+    document.getElementById('kpi-rate').textContent    = total ? (threats / total * 100).toFixed(1) + '%' : '0%';
+
+    // Donut legend
+    document.getElementById('donut-total').textContent  = total.toLocaleString();
+    document.getElementById('legend-high').textContent   = `${high_risk} (${pct(high_risk, total)})`;
+    document.getElementById('legend-medium').textContent = `${medium_risk} (${pct(medium_risk, total)})`;
+    document.getElementById('legend-low').textContent    = `${low_risk} (${pct(low_risk, total)})`;
+    document.getElementById('legend-safe').textContent   = `${safe} (${pct(safe, total)})`;
+
+    // Insight box
+    const insightEl = document.getElementById('insight-text');
+    if (total === 0) {
+        insightEl.innerHTML = '<p>No scans yet</p><span>Run a scan to populate your dashboard.</span>';
+    } else {
+        insightEl.innerHTML = `<p>${threats} threat${threats !== 1 ? 's' : ''} detected out of ${total} scans</p><span>${pct(safe, total)} of your scans are clean.</span>`;
+    }
+
+    // Charts
+    initDonut(high_risk, medium_risk, low_risk, safe);
+
+    // Latest Scan
+    if (latest_scan) {
+        document.getElementById('latest-scan-empty').style.display = 'none';
+        const lc = document.getElementById('latest-scan-content');
+        lc.style.display = 'flex';
+        document.getElementById('latest-score').textContent = latest_scan.risk_score;
+        document.getElementById('latest-time').textContent  = latest_scan.scanned_at;
+        document.getElementById('latest-detail').textContent = latest_scan.details;
+        const badgeEl = document.getElementById('latest-badge');
+        badgeEl.className = `badge ${badgeClass(latest_scan.result)}`;
+        badgeEl.textContent = latest_scan.result;
+        initGauge(latest_scan.risk_score, latest_scan.result);
+    }
+
+    // Recent scans table
+    const tbody = document.getElementById('recent-scans-tbody');
+    if (!recent_scans.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:48px;">No scans yet. <a href="/scan" style="color:var(--primary); font-weight:600;">Run your first scan</a>.</td></tr>';
+    } else {
+        tbody.innerHTML = recent_scans.map(s => {
+            const icon  = TYPE_ICONS[s.scan_type] || 'fa-file';
+            const badge = badgeClass(s.result);
+            const short = s.content.length > 45 ? s.content.substring(0, 45) + '...' : s.content;
+            
+            let scoreColor = '#10b981';
+            if (s.risk_score > 70) scoreColor = '#ef4444';
+            else if (s.risk_score > 30) scoreColor = '#f59e0b';
+
+            return `<tr style="border-bottom: 1px solid var(--border-color);">
+                <td class="content-cell" style="padding: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid ${icon}" style="color: var(--text-muted);"></i>
+                        <span title="${s.content}" style="font-family: monospace; font-size: 0.8125rem;">${short}</span>
+                    </div>
+                </td>
+                <td style="font-size: 0.8125rem; font-weight: 500;">${s.scan_type}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 32px; height: 3px; background: var(--border-color); border-radius: 2px;">
+                            <div style="width: ${s.risk_score}%; height: 100%; background: ${scoreColor};"></div>
+                        </div>
+                        <span style="font-size: 0.8125rem; font-weight: 700; color: var(--text-main);">${s.risk_score}</span>
+                    </div>
+                </td>
+                <td><span class="badge ${badge}" style="font-size: 0.75rem; padding: 4px 10px;">${s.result}</span></td>
+                <td class="time-cell" style="font-size: 0.8125rem;">${s.scanned_at}</td>
+                <td class="action-cell"><i class="fa-solid fa-ellipsis-vertical"></i></td>
+            </tr>`;
+        }).join('');
+    }
+
+    // High risk list
+    const detList = document.getElementById('detection-list');
+    if (!recent_high_risk.length) {
+        detList.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:32px 0; font-size:0.875rem;">No high risk detections yet.</div>';
+    } else {
+        detList.innerHTML = recent_high_risk.map(s => {
+            const icon = TYPE_ICONS[s.scan_type] || 'fa-file';
+            const short = s.content.length > 50 ? s.content.substring(0, 50) + '…' : s.content;
+            return `<div class="detection-item">
+                <i class="fa-solid ${icon}"></i>
+                <div class="detection-info"><p title="${s.content}">${short}</p></div>
+                <div class="detection-meta">
+                    <span class="badge-outline-high">${s.result}</span>
+                    <span>${s.scanned_at}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+}
+
+// ── Fetch and render ─────────────────────────────────────────────────────────
+async function loadDashboard() {
+    try {
+        const token = localStorage.getItem('zp_token');
+        const res   = await fetch('/api/dashboard/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.status === 401) {
+            localStorage.removeItem('zp_token');
+            window.location.href = '/login';
+            return;
+        }
+        
+        const stats = await res.json();
+        populateDashboard(stats);
+        initAreaChart([]); // simplified — area chart with basic data
+    } catch (e) {
+        console.error('Dashboard load failed:', e);
+    }
+}
+
+// Init on load
+initSparklines();
+loadDashboard();
+</script>
+{% endblock %}

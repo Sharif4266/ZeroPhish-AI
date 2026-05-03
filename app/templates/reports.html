@@ -1,0 +1,119 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Reports | ZeroPhish AI{% endblock %}
+
+{% block greeting %}
+    <h1>Generated Reports</h1>
+    <p>Download automated security reports for compliance and auditing.</p>
+{% endblock %}
+
+{% block content %}
+<div class="content-grid" style="grid-template-columns: 1fr;">
+    <div class="card">
+        <div class="table-header-row" style="margin-bottom: 24px;">
+            <h3 class="card-title" style="margin:0;">Scheduled Reports</h3>
+            <button class="btn-analyze" style="padding: 10px 20px;">
+                <i class="fa-solid fa-plus"></i> New Report
+            </button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Report Name</th>
+                    <th>Frequency</th>
+                    <th>Format</th>
+                    <th>Last Generated</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="content-cell">
+                        <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+                        <span>Weekly Threat Summary</span>
+                    </td>
+                    <td>Weekly</td>
+                    <td>PDF</td>
+                    <td class="time-cell">2 days ago</td>
+                    <td class="action-cell">
+                        <button class="btn-outline" onclick="downloadJSONReport()" style="padding: 6px 12px; font-size: 0.8rem;">Download</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="content-cell">
+                        <i class="fa-solid fa-file-csv" style="color: #10b981;"></i>
+                        <span>All Detections Log</span>
+                    </td>
+                    <td>Monthly</td>
+                    <td>CSV</td>
+                    <td class="time-cell">1 week ago</td>
+                    <td class="action-cell">
+                        <button class="btn-outline" onclick="downloadCSVReport()" style="padding: 6px 12px; font-size: 0.8rem;">Download</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function fetchAllScans() {
+    const token = localStorage.getItem('zp_token');
+    const res = await fetch('/api/scans?limit=500', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.status === 401) { window.location.href = '/login'; return null; }
+    return await res.json();
+}
+
+async function downloadCSVReport() {
+    const data = await fetchAllScans();
+    if (!data || !data.length) return alert("No data available to export.");
+
+    const headers = ["ID", "Scan Type", "Result", "Risk Score", "Date", "Content Snippet"];
+    const rows = data.map(s => [
+        s.id || '',
+        s.scan_type,
+        s.result,
+        s.risk_score,
+        s.scanned_at,
+        '"' + s.content.substring(0, 50).replace(/"/g, '""') + '..."'
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ZeroPhish_All_Detections_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+async function downloadJSONReport() {
+    const data = await fetchAllScans();
+    if (!data || !data.length) return alert("No data available to export.");
+
+    const report = {
+        generated_at: new Date().toISOString(),
+        total_scans: data.length,
+        data: data
+    };
+
+    const blob = new Blob([JSON.stringify(report, null, 4)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ZeroPhish_Threat_Summary_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

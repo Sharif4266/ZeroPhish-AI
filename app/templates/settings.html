@@ -1,0 +1,254 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Settings | ZeroPhish AI{% endblock %}
+
+{% block greeting %}
+    <h1>Settings</h1>
+    <p>Manage your account preferences and API configurations.</p>
+{% endblock %}
+
+{% block content %}
+<div class="content-grid" style="grid-template-columns: 260px 1fr; align-items: start;">
+    <!-- Settings Sidebar -->
+    <div class="card" style="padding: 16px 0;">
+        <nav style="display: flex; flex-direction: column;" id="settings-nav">
+            <a href="javascript:void(0)" class="nav-item active" data-tab="profile" style="margin: 0; border-radius: 0; padding: 12px 24px;">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="security" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Security</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="notifications" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-tab="apikeys" style="margin: 0; border-radius: 0; padding: 12px 24px; color: var(--text-main);">
+                <i class="fa-solid fa-key"></i>
+                <span>API Keys</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="card" style="position: relative; min-height: 500px;">
+        <!-- Success Toast -->
+        <div id="save-toast" style="display: none; position: absolute; top: 16px; right: 16px; background: #10b981; color: white; padding: 8px 16px; border-radius: 4px; font-size: 0.875rem; align-items: center; gap: 8px; z-index: 10;">
+            <i class="fa-solid fa-check-circle"></i> Changes saved successfully
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="tab-profile" class="tab-pane">
+            <h3 class="card-title" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">Profile Details</h3>
+            <form id="profile-form" style="display: flex; flex-direction: column; gap: 20px; max-width: 500px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">Full Name</label>
+                    <input id="setting-name" type="text" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--card-bg); color: var(--text-main);">
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">Email Address</label>
+                    <input id="setting-email" type="email" disabled style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--bg-main); color: var(--text-muted); cursor: not-allowed; opacity: 0.7;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Email addresses cannot be changed at this time.</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">Timezone</label>
+                    <select style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--card-bg); color: var(--text-main);">
+                        <option>UTC (Coordinated Universal Time)</option>
+                        <option>EST (Eastern Standard Time)</option>
+                        <option>PST (Pacific Standard Time)</option>
+                    </select>
+                </div>
+
+                <h3 class="card-title" style="margin: 24px 0 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">Appearance</h3>
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <div>
+                        <h4 style="margin: 0 0 4px; font-size: 0.875rem;">Dark Mode</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Switch between light and dark themes.</p>
+                    </div>
+                    <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" id="theme-toggle" style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-dark); transition: .4s; border-radius: 24px;"></span>
+                    </label>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <button type="button" class="save-btn" style="background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- SECURITY TAB -->
+        <div id="tab-security" class="tab-pane" style="display: none;">
+            <h3 class="card-title" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">Security Settings</h3>
+            <form style="display: flex; flex-direction: column; gap: 20px; max-width: 500px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">Current Password</label>
+                    <input type="password" placeholder="••••••••" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--card-bg); color: var(--text-main);">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">New Password</label>
+                    <input type="password" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--card-bg); color: var(--text-main);">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 0.875rem;">Confirm New Password</label>
+                    <input type="password" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; background: var(--card-bg); color: var(--text-main);">
+                </div>
+                <div style="margin-top: 16px;">
+                    <button type="button" class="save-btn" style="background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Update Password</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- NOTIFICATIONS TAB -->
+        <div id="tab-notifications" class="tab-pane" style="display: none;">
+            <h3 class="card-title" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">Notification Preferences</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px; max-width: 600px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <div>
+                        <h4 style="margin: 0 0 4px; font-size: 0.875rem;">Security Alerts</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Get notified when suspicious activity is detected.</p>
+                    </div>
+                    <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px;"></span>
+                    </label>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <div>
+                        <h4 style="margin: 0 0 4px; font-size: 0.875rem;">Weekly Reports</h4>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Receive a summary of your security scans every Monday.</p>
+                    </div>
+                    <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px;"></span>
+                    </label>
+                </div>
+                <div style="margin-top: 16px;">
+                    <button type="button" class="save-btn" style="background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Save Preferences</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API KEYS TAB -->
+        <div id="tab-apikeys" class="tab-pane" style="display: none;">
+            <h3 class="card-title" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">API Configuration</h3>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Use these keys to integrate ZeroPhish AI into your own applications.</p>
+            
+            <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Production Key</span>
+                    <span style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Active</span>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" readonly value="zp_live_51MszL7GkXwJmRy..." style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 0.875rem; background: var(--bg-main);">
+                    <button style="padding: 0 16px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); cursor: pointer;"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <button type="button" style="background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 10px 24px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Generate New Key</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.switch input:checked + .slider { background-color: var(--primary); }
+.switch input:focus + .slider { box-shadow: 0 0 1px var(--primary); }
+.switch input:checked + .slider:before { transform: translateX(20px); }
+.slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+}
+.tab-pane { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Tab Switching Logic
+    const navItems = document.querySelectorAll('#settings-nav .nav-item');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tabId = item.getAttribute('data-tab');
+            
+            // Update nav
+            navItems.forEach(i => {
+                i.classList.remove('active');
+                i.style.color = 'var(--text-main)';
+            });
+            item.classList.add('active');
+            item.style.color = ''; // active class takes over
+
+            // Update panes
+            tabPanes.forEach(pane => pane.style.display = 'none');
+            document.getElementById(`tab-${tabId}`).style.display = 'block';
+        });
+    });
+
+    // Load User Data
+    const userStr = localStorage.getItem('zp_user');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            document.getElementById('setting-name').value = user.full_name;
+            document.getElementById('setting-email').value = user.email;
+        } catch(e) {}
+    }
+
+    // Load Theme
+    const themeToggle = document.getElementById('theme-toggle');
+    if (localStorage.getItem('zp_theme') === 'dark') {
+        themeToggle.checked = true;
+    }
+
+    // Handle Theme Change
+    themeToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('zp_theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('zp_theme', 'light');
+        }
+    });
+
+    // Handle Save (Shared for all save buttons)
+    document.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Update local storage user name if on profile tab
+                const nameInput = document.getElementById('setting-name');
+                if (nameInput) {
+                    const newName = nameInput.value;
+                    const userStr = localStorage.getItem('zp_user');
+                    if (userStr) {
+                        const user = JSON.parse(userStr);
+                        user.full_name = newName;
+                        localStorage.setItem('zp_user', JSON.stringify(user));
+                        if (typeof loadUserSession === 'function') loadUserSession(); 
+                    }
+                }
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                const toast = document.getElementById('save-toast');
+                toast.style.display = 'flex';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }, 800);
+        });
+    });
+});
+</script>
+{% endblock %}
